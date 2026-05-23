@@ -1,0 +1,291 @@
+{
+  "feeds": [
+    {
+      "id": 1,
+      "name": "Harmonics Pro Trader Feed",
+      "url": "https://rss.app/r/feed/tHKswl2LXtAZCgGa",
+      "check_interval": 30,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562566
+    },
+    {
+      "id": 2,
+      "name": "Harmonics Pro Trader Feed",
+      "url": "https://rss.app/r/feed/tHKswl2LXtAZCgGa",
+      "check_interval": 30,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562597
+    },
+    {
+      "id": 3,
+      "name": "Harmonics Pro Trader",
+      "url": "https://rss.app/r/feed/tHKswl2LXtAZCgGa",
+      "check_interval": 30,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562674
+    },
+    {
+      "id": 4,
+      "name": 1779563821,
+      "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "check_interval": 4,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562824
+    },
+    {
+      "id": 5,
+      "name": 1779563821,
+      "url": "https://www.cnbc.com/id/20910258/device/rss/rss.html",
+      "check_interval": 5,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562824
+    },
+    {
+      "id": 6,
+      "name": "CNBC Forex",
+      "url": "https://www.cnbc.com/id/100762982/device/rss/rss.html",
+      "check_interval": 30,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562824
+    },
+    {
+      "id": 7,
+      "name": 1779563821,
+      "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+      "check_interval": 7,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562824
+    },
+    {
+      "id": 8,
+      "name": 1779563821,
+      "url": "https://cointelegraph.com/rss",
+      "check_interval": 8,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562824
+    },
+    {
+      "id": 9,
+      "name": 1779563821,
+      "url": "https://decrypt.co/feed",
+      "check_interval": 9,
+      "max_items": 3,
+      "max_per_day": 10,
+      "trickle": "off",
+      "prefix": "",
+      "suffix": "",
+      "post_immediately": 1,
+      "active": 1,
+      "last_checked": 0,
+      "filter_all": "",
+      "filter_any": "",
+      "filter_ignore": "",
+      "created_at": 1779562824
+    }
+  ],
+  "platforms": [
+    {
+      "id": 1,
+      "name": "Harmonics Pro Trader",
+      "type": "bluesky",
+      "config": "{\"handle\":\"@harmonicsprotrader.bsky.social\",\"password\":\"wa3j-rx4y-fw4h-adll\"}",
+      "active": 1,
+      "created_at": 1779542458
+    },
+    {
+      "id": 2,
+      "name": "Harmonics Pro Trader",
+      "type": "discord",
+      "config": "{\"webhookUrl\":\"https://discord.com/api/webhooks/1507647429019963422/VkqVH4BCaSmHszVElOy3kuNEentq20USMioqk36fNuhAj3yzh0qVkeqFPRhEp2cJM4Tw\"}",
+      "active": 1,
+      "created_at": 1779542577
+    },
+    {
+      "id": 3,
+      "name": "Harmonics Pro Trader X",
+      "type": "twitter",
+      "config": "{}",
+      "active": 1,
+      "created_at": 1779560142
+    },
+    {
+      "id": 4,
+      "name": "Harmonics Pro Trader",
+      "type": "threads",
+      "config": "{\"handle\":\"harmonicsprotrader\",\"password\":\"\"}",
+      "active": 1,
+      "created_at": 1779562166
+    },
+    {
+      "id": 5,
+      "name": "Harmonics Pro Trader",
+      "type": "threads",
+      "config": "{\"handle\":\"harmonicsprotrader\",\"email\":\"harmonicsprotrader@gmail.com\"}",
+      "active": 1,
+      "created_at": 1779562223
+    },
+    {
+      "id": 6,
+      "name": "Harmonics Pro Trader",
+      "type": "threads",
+      "config": "{\"handle\":\"harmonicsprotrader\",\"password\":\"Pedro2026\",\"email\":\"harmonicsprotrader@gmail.com\"}",
+      "active": 1,
+      "created_at": 1779563902
+    }
+  ],
+  "feed_platforms": [
+    {
+      "feed_id": "1",
+      "platform_id": 2
+    },
+    {
+      "feed_id": "1",
+      "platform_id": 3
+    },
+    {
+      "feed_id": "2",
+      "platform_id": 2
+    },
+    {
+      "feed_id": "2",
+      "platform_id": 3
+    },
+    {
+      "feed_id": "3",
+      "platform_id": 2
+    },
+    {
+      "feed_id": "3",
+      "platform_id": 3
+    }
+  ],
+  "posted_items": [
+    {
+      "id": 1,
+      "feed_id": 0,
+      "item_guid": "manual-1779558825456",
+      "item_title": "Test post from SocialFlow! #trading #forex",
+      "item_url": "",
+      "platform": "discord",
+      "status": "posted",
+      "posted_at": 1779558825
+    },
+    {
+      "id": 2,
+      "feed_id": 0,
+      "item_guid": "manual-1779559043043",
+      "item_title": "Unlock the potential of the global market with Forex trading! 🌍💹 Whether you're a seasoned trader ",
+      "item_url": "",
+      "platform": "discord",
+      "status": "posted",
+      "posted_at": 1779559043
+    },
+    {
+      "id": 3,
+      "feed_id": 0,
+      "item_guid": "manual-1779559263069",
+      "item_title": "🚀 Ready to elevate your trading game? Whether you're a seasoned pro or just starting out, staying i",
+      "item_url": "",
+      "platform": "discord",
+      "status": "posted",
+      "posted_at": 1779559263
+    },
+    {
+      "id": 4,
+      "feed_id": 0,
+      "item_guid": "manual-1779561864424",
+      "item_title": "Test post from SocialFlow! #trading #forex",
+      "item_url": "",
+      "platform": "twitter",
+      "status": "posted",
+      "posted_at": 1779561864
+    }
+  ],
+  "queue": [],
+  "_nextId": {
+    "feeds": 10,
+    "platforms": 7,
+    "posted_items": 5,
+    "queue": 1
+  }
+}

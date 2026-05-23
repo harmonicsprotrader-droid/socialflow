@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SocialFlow — RSS Publisher</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── Top Nav ──────────────────────────────────────────────────────────── -->
+<header class="topnav">
+  <div class="topnav-brand">
+    <span class="brand-icon">📡</span>
+    <span class="brand-name">SocialFlow</span>
+  </div>
+  <nav class="topnav-tabs">
+    <button class="tab-btn active" data-tab="publish">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+      Publish
+    </button>
+    <button class="tab-btn" data-tab="automate">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Automate
+    </button>
+    <button class="tab-btn" data-tab="schedule">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Schedule
+    </button>
+    <button class="tab-btn" data-tab="stats">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Stats
+    </button>
+    <button class="tab-btn" data-tab="outputs">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+      Outputs
+    </button>
+  </nav>
+  <div class="topnav-right">
+    <div class="stats-pill" id="top-stats">
+      <span id="top-posts-today">0</span> posts today
+    </div>
+    <div class="avatar-btn">SF</div>
+  </div>
+</header>
+
+<!-- ── Layout ───────────────────────────────────────────────────────────── -->
+<div class="app-layout">
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <button class="sidebar-btn active" data-page="compose">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Post
+    </button>
+    <button class="sidebar-btn" data-page="discover">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Import / Discover
+    </button>
+    <button class="sidebar-btn" data-page="feeds">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Automations
+    </button>
+    <button class="sidebar-btn" data-page="discover">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Top Automations
+    </button>
+    <button class="sidebar-btn" data-page="history">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="2"/></svg>
+      Curated <span class="sidebar-badge" id="curated-count">0</span>
+    </button>
+    <button class="sidebar-btn" data-page="platforms">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Platforms
+    </button>
+    <button class="sidebar-btn" data-page="history">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </button>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Settings</div>
+    <button class="sidebar-btn" data-page="settings">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      API Settings
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- ── Compose / New Post ── -->
+    <div class="page active" id="page-compose">
+
+      <div class="compose-wrap">
+
+        <!-- Account selector -->
+        <div class="compose-section">
+          <div class="compose-section-header">
+            <span class="compose-section-title">Select social accounts</span>
+            <button class="compose-filter-btn" title="Filter">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="account-grid-scroll">
+            <div id="account-grid" class="account-grid">
+              <div class="account-empty">No platforms connected. <a href="#" onclick="showPage('platforms')">Add →</a></div>
+            </div>
+          </div>
+          <div class="account-grid-footer">
+            <span id="selected-count" class="selected-count"></span>
+            <button class="select-all-btn" onclick="selectAllPlatforms()">select all</button>
+          </div>
+        </div>
+
+        <div class="compose-divider"></div>
+
+        <!-- AI Helper + Text area -->
+        <div class="compose-section compose-text-section">
+          <button class="ai-helper-btn" onclick="toggleAiHelper()">
+            AI Helper ✨
+          </button>
+          <div id="ai-helper-panel" class="ai-helper-panel" style="display:none;">
+            <div class="ai-helper-inner">
+              <div class="field-row">
+                <div class="field">
+                  <label>Topic</label>
+                  <input type="text" id="ai-topic" placeholder="What do you want to post about?" />
+                </div>
+                <div class="field" style="flex:0 0 140px;">
+                  <label>Tone</label>
+                  <select id="ai-tone">
+                    <option>Professional</option>
+                    <option>Casual</option>
+                    <option>Humorous</option>
+                    <option>Inspirational</option>
+                    <option>Educational</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-ai" onclick="generatePost()">✨ Generate Post</button>
+            </div>
+          </div>
+          <textarea id="compose-text" class="compose-textarea" placeholder="What would you like to share?" oninput="updateCharCount()"></textarea>
+
+          <!-- Toolbar -->
+          <div class="compose-toolbar2">
+            <div class="compose-toolbar2-left">
+              <button class="toolbar2-btn" onclick="document.getElementById('media-input').click()" title="Add image">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+              <input type="file" id="media-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)" />
+              <span class="toolbar2-char-count" id="char-count">0</span>
+              <button class="toolbar2-btn" title="Emoji">😊</button>
+              <button class="toolbar2-btn toolbar2-hash" onclick="generateHashtags()" title="Smart Hashtags">#</button>
+              <button class="toolbar2-btn" title="Link shortener">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </button>
+              <button class="toolbar2-btn toolbar2-edit-ai" onclick="toggleAiHelper()">Edit with AI</button>
+            </div>
+          </div>
+          <div id="image-preview" class="image-preview" style="display:none;"></div>
+        </div>
+
+        <div class="compose-divider"></div>
+
+        <!-- Smart Hashtags -->
+        <div class="compose-section" id="smart-hashtags-compose" style="display:none;">
+          <div class="smart-hashtags-header">
+            <span class="smart-hashtags-label">Smart Hashtags:</span>
+            <button class="hashtag-refresh-btn" onclick="generateHashtags()" title="Refresh hashtags">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </button>
+          </div>
+          <div id="hashtag-pills" class="hashtag-pills"></div>
+        </div>
+
+        <!-- Customize for each platform -->
+        <div class="compose-section compose-platform-customize">
+          <button class="customize-platform-btn" onclick="toggleCustomize()">
+            Customize for each platform
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="customize-panel" style="display:none;" class="customize-panel">
+            <div style="color:var(--muted);font-size:13px;padding:12px 0;">Platform-specific customization coming soon.</div>
+          </div>
+        </div>
+
+        <div class="compose-divider"></div>
+
+        <!-- Post Now footer -->
+        <div class="compose-section compose-footer2">
+          <div id="publish-results2" class="publish-results2"></div>
+          <div class="post-now-wrap">
+            <button class="btn-post-now" onclick="publishPost()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              Post Now
+            </button>
+            <button class="btn-post-now-arrow" onclick="toggleSchedule()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div id="schedule-panel" style="display:none;" class="schedule-panel">
+            <input type="datetime-local" id="schedule-time" />
+            <button class="btn btn-primary btn-sm" onclick="publishScheduled()">Schedule</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Import / Discover ── -->
+    <div class="page" id="page-discover">
+      <div class="page-title">Import / Discover Feeds</div>
+      <div class="discover-wrap">
+        <div class="search-bar-wrap">
+          <input type="text" id="discover-query" class="discover-input" placeholder="Enter a website URL or keyword (e.g. techcrunch.com or AI news)" onkeydown="if(event.key==='Enter') doFeedSearch()" />
+          <button class="btn btn-primary" onclick="doFeedSearch()">Search</button>
+        </div>
+        <div class="discover-hint">Enter a website URL to auto-detect its RSS feed, or a keyword to search for feeds on that topic.</div>
+        <div id="discover-results" class="discover-results"></div>
+      </div>
+    </div>
+
+    <!-- ── RSS Feeds / Automate ── -->
+    <div class="page" id="page-feeds">
+      <div class="automate-toolbar">
+        <div class="automate-filter-wrap">
+          <button class="automate-filter-btn" id="inputs-filter-btn" onclick="toggleInputsDropdown()">
+            All <span id="inputs-count">0</span> Inputs
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="inputs-dropdown" id="inputs-dropdown" style="display:none;">
+            <div class="inputs-dropdown-item active" onclick="filterFeeds('all')">All Inputs</div>
+            <div class="inputs-dropdown-item" onclick="filterFeeds('active')">Active</div>
+            <div class="inputs-dropdown-item" onclick="filterFeeds('inactive')">Inactive</div>
+          </div>
+        </div>
+        <div class="automate-toolbar-right">
+          <button class="automate-icon-btn" title="Search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <button class="automate-icon-btn" title="Filter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAddFeed()">+ New Automation</button>
+        </div>
+      </div>
+      <div id="feeds-list" class="feeds-automate-list"></div>
+    </div>
+
+    <!-- ── Platforms / Outputs ── -->
+    <div class="page" id="page-platforms">
+      <div class="page-header-row">
+        <div class="page-title">Connected Platforms</div>
+        <button class="btn btn-primary" onclick="openAddPlatform()">+ Connect Platform</button>
+      </div>
+      <p class="page-sub">Connect your social accounts. Each feed can publish to one or more platforms.</p>
+      <div id="platforms-grid" class="platforms-grid"></div>
+    </div>
+
+    <!-- ── History ── -->
+    <div class="page" id="page-history">
+      <div class="page-header-row">
+        <div class="page-title">Post History</div>
+        <button class="btn btn-secondary" onclick="loadHistory()">↻ Refresh</button>
+      </div>
+      <div id="history-list" class="history-list"></div>
+    </div>
+
+    <!-- ── Stats ── -->
+    <div class="page" id="page-stats">
+      <div class="page-title">Stats</div>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <!-- ── Settings ── -->
+    <div class="page" id="page-settings">
+      <div class="page-title">API Settings</div>
+      <div class="settings-wrap">
+        <div class="settings-card">
+          <div class="settings-label">OpenAI API Key</div>
+          <div class="field">
+            <input type="password" id="settings-openai" placeholder="sk-..." />
+          </div>
+          <div class="settings-hint">Used for AI Helper and hashtag generation. Get yours at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-label">Bluesky Default Account</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <input type="text" id="settings-bsky-handle" placeholder="you.bsky.social" />
+            <input type="password" id="settings-bsky-password" placeholder="App Password (xxxx-xxxx-xxxx-xxxx)" />
+          </div>
+          <div class="settings-hint">Create an App Password at <a href="https://bsky.app/settings/app-passwords" target="_blank">bsky.app → Settings</a></div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-label">Twitter / X</div>
+          <div class="settings-hint">Twitter credentials are configured in your <code>.env</code> file on the server.</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        <div id="settings-status" class="settings-status"></div>
+      </div>
+    </div>
+
+
+    <!-- ── Feed Settings Page ── -->
+    <div class="page" id="page-feed-settings">
+      <div class="feed-settings-breadcrumb">
+        <a href="#" onclick="showPage('feeds')" class="breadcrumb-link">Your Feeds</a>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="breadcrumb-icon">🟠</span>
+        <span class="breadcrumb-current" id="feed-settings-name">Feed</span>
+        <div class="feed-settings-header-actions">
+          <button class="feed-settings-header-btn active" data-settings-view="settings" onclick="switchSettingsView('settings')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Settings
+          </button>
+          <button class="feed-settings-header-btn" data-settings-view="history" onclick="switchSettingsView('history')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Feed History
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings view -->
+      <div id="feed-settings-view">
+        <!-- Inner tabs -->
+        <div class="feed-settings-tabs">
+          <button class="feed-settings-tab" data-tab="detail" onclick="switchFeedTab('detail')">Detail</button>
+          <button class="feed-settings-tab" data-tab="updates" onclick="switchFeedTab('updates')">Updates</button>
+          <button class="feed-settings-tab active" data-tab="hashtags" onclick="switchFeedTab('hashtags')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Hashtags
+          </button>
+          <button class="feed-settings-tab" data-tab="itemtext" onclick="switchFeedTab('itemtext')">Item Text</button>
+          <button class="feed-settings-tab" data-tab="filters" onclick="switchFeedTab('filters')">Filters</button>
+          <button class="feed-settings-tab" data-tab="advanced" onclick="switchFeedTab('advanced')">Advanced</button>
+        </div>
+
+        <!-- Tab panels -->
+        <div class="feed-tab-panels">
+
+          <!-- Detail -->
+          <div class="feed-tab-panel" id="ftab-detail">
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Feed URL <span class="info-icon" title="The RSS feed source URL">ⓘ</span>
+              </div>
+              <div class="detail-field-value" id="fs-url-display">—</div>
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Input Name <span class="required-star">*</span>
+              </div>
+              <input type="text" id="fs-name" class="detail-name-input" placeholder="Feed name" />
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">When should we post new items?</div>
+              <select id="fs-mode" class="detail-select">
+                <option value="1">Post immediately when found</option>
+                <option value="0">Add to queue and post later</option>
+              </select>
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Echo <span class="info-icon" title="Re-share older items from this feed on a schedule">ⓘ</span>
+              </div>
+              <label class="detail-toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="fs-echo" />
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="detail-toggle-label">Echo Content</span>
+              </label>
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Feed Active</div>
+              <label class="toggle" style="transform:scale(1.15); transform-origin:left;">
+                <input type="checkbox" id="fs-active" checked />
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+
+            <div class="feed-settings-section">
+              <button class="delete-feed-link" onclick="deleteFeedFromSettings()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete Feed
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Updates -->
+          <div class="feed-tab-panel" id="ftab-updates" style="display:none;">
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Update Frequency</div>
+              <select id="fs-interval" class="detail-select">
+                <option value="5">Every 5 minutes</option>
+                <option value="15">Every 15 minutes</option>
+                <option value="30">Every 30 minutes</option>
+                <option value="60">Once an hour</option>
+                <option value="360">Every 6 hours</option>
+                <option value="720">Every 12 hours</option>
+                <option value="1440">Once a day</option>
+              </select>
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Max posts per update <span class="required-star">*</span>
+              </div>
+              <input type="number" id="fs-max" class="detail-name-input" min="1" max="20" value="1" style="max-width:120px;" />
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Max posts per day <span class="required-star">*</span>
+              </div>
+              <input type="number" id="fs-max-day" class="detail-name-input" min="1" max="100" value="1" style="max-width:120px;" />
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Trickle <span class="info-icon" title="Space out posts evenly throughout the day instead of posting all at once">ⓘ</span>
+              </div>
+              <select id="fs-trickle" class="detail-select">
+                <option value="off">Trickle Off</option>
+                <option value="1h">Every 1 hour</option>
+                <option value="2h">Every 2 hours</option>
+                <option value="4h">Every 4 hours</option>
+                <option value="6h">Every 6 hours</option>
+                <option value="12h">Every 12 hours</option>
+              </select>
+            </div>
+
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Subscribe to PuSH Updates <span class="info-icon" title="Get notified instantly when new content is published via WebSub/PuSH">ⓘ</span>
+              </div>
+              <label class="toggle" style="transform:scale(1.15); transform-origin:left;">
+                <input type="checkbox" id="fs-push" checked />
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+
+          </div>
+
+          <!-- Hashtags -->
+          <div class="feed-tab-panel" id="ftab-hashtags" style="display:none;">
+            <div class="feed-settings-section">
+              <div class="feed-settings-section-row">
+                <div class="feed-settings-section-title">Set Hashtag Style</div>
+                <a href="#" class="feed-settings-help-link">Hashtags not posting?</a>
+              </div>
+              <select id="fs-hashtag-style" class="hashtag-style-select" onchange="updateHashtagPanel()">
+                <option value="none">No Hashtags</option>
+                <option value="ai">Smart Hashtags</option>
+                <option value="manual">Manual Hashtags</option>
+                <option value="category">Feed Category</option>
+              </select>
+            </div>
+
+            <!-- Smart Hashtags panel -->
+            <div class="feed-settings-section" id="smart-hashtags-panel" style="display:none;">
+              <div class="feed-settings-section-title">
+                Smart Hashtags
+                <span class="info-icon" title="AI generates relevant hashtags for each post">ⓘ</span>
+              </div>
+              <div class="smart-hashtag-toggle-row">
+                <label class="toggle" style="transform:scale(1.1);">
+                  <input type="checkbox" id="fs-hashtag-on" checked onchange="document.getElementById('smart-hashtag-config').style.display = this.checked ? 'block' : 'none'" />
+                  <div class="toggle-track"></div>
+                </label>
+                <span id="hashtag-on-label" style="font-weight:600;font-size:14px;">On</span>
+              </div>
+              <div id="smart-hashtag-config">
+                <div class="smart-hashtag-count-row">
+                  <span>Include a maximum of</span>
+                  <select id="fs-hashtag-max" class="hashtag-count-select">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5" selected>5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="10">10</option>
+                  </select>
+                  <span>AI generated hashtags in every post from this feed.</span>
+                </div>
+                <div class="smart-hashtag-disclaimer">
+                  *Auto AI-generated results may not always be accurate or perfectly tailored.
+                </div>
+              </div>
+            </div>
+
+            <!-- Manual hashtags panel -->
+            <div class="feed-settings-section" id="manual-hashtags-panel" style="display:none;">
+              <div class="feed-settings-section-title">Manual Hashtags</div>
+              <div class="field">
+                <label>Hashtags (space or comma separated)</label>
+                <input type="text" id="fs-manual-hashtags" placeholder="#trading #forex #crypto" />
+              </div>
+              <div class="field">
+                <label>Position</label>
+                <select id="fs-hashtag-position">
+                  <option value="end">End of post</option>
+                  <option value="start">Start of post</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item Text -->
+          <div class="feed-tab-panel" id="ftab-itemtext" style="display:none;">
+
+            <!-- Prefix -->
+            <div class="feed-settings-section">
+              <div class="itemtext-row">
+                <div class="itemtext-left">
+                  <div class="detail-field-label">
+                    Prefix <span class="info-icon" title="Text added before each post">ⓘ</span>
+                  </div>
+                  <input type="text" id="fs-prefix" class="itemtext-input" placeholder="Start items with" />
+                  <div class="itemtext-hint">
+                    Prefixes may not contain '#'. <a href="#" onclick="switchFeedTab('hashtags');return false;" class="itemtext-link">Need hashtags?</a>
+                  </div>
+                </div>
+                <div class="itemtext-right">
+                  <label class="itemtext-toggle-label">
+                    Disable space after prefix
+                    <label class="toggle" style="transform:scale(0.9);">
+                      <input type="checkbox" id="fs-prefix-nospace" />
+                      <div class="toggle-track"></div>
+                    </label>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Suffix -->
+            <div class="feed-settings-section">
+              <div class="itemtext-row">
+                <div class="itemtext-left">
+                  <div class="detail-field-label">
+                    Suffix <span class="info-icon" title="Text added after each post">ⓘ</span>
+                  </div>
+                  <input type="text" id="fs-suffix" class="itemtext-input" placeholder="End items with" />
+                  <div class="itemtext-hint">
+                    Suffixes may not contain '#'. <a href="#" onclick="switchFeedTab('hashtags');return false;" class="itemtext-link">Need hashtags?</a>
+                  </div>
+                </div>
+                <div class="itemtext-right">
+                  <label class="itemtext-toggle-label">
+                    Disable space before suffix
+                    <label class="toggle" style="transform:scale(0.9);">
+                      <input type="checkbox" id="fs-suffix-nospace" />
+                      <div class="toggle-track"></div>
+                    </label>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Find and Replace -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Find and Replace / Remove
+                <span class="info-icon" title="Find text in feed items and replace or remove it before posting">ⓘ</span>
+              </div>
+              <div id="find-replace-rules" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+              <button class="add-rule-btn" onclick="addFindReplaceRule()">Add Rule</button>
+            </div>
+
+          </div>
+
+          <!-- Filters -->
+          <div class="feed-tab-panel" id="ftab-filters" style="display:none;">
+
+            <!-- Filter fields -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Choose what to use for filtering</div>
+              <div class="filter-fields-row">
+                <label class="filter-field-toggle">
+                  <label class="toggle" style="transform:scale(0.85);">
+                    <input type="checkbox" id="ff-title" checked />
+                    <div class="toggle-track"></div>
+                  </label>
+                  <span>Title</span>
+                </label>
+                <label class="filter-field-toggle">
+                  <label class="toggle" style="transform:scale(0.85);">
+                    <input type="checkbox" id="ff-content" />
+                    <div class="toggle-track"></div>
+                  </label>
+                  <span>Content</span>
+                </label>
+                <label class="filter-field-toggle">
+                  <label class="toggle" style="transform:scale(0.85);">
+                    <input type="checkbox" id="ff-category" />
+                    <div class="toggle-track"></div>
+                  </label>
+                  <span>Category</span>
+                </label>
+                <label class="filter-field-toggle">
+                  <label class="toggle" style="transform:scale(0.85);">
+                    <input type="checkbox" id="ff-author" />
+                    <div class="toggle-track"></div>
+                  </label>
+                  <span>Author</span>
+                </label>
+                <label class="filter-field-toggle">
+                  <label class="toggle" style="transform:scale(0.85);">
+                    <input type="checkbox" id="ff-link" />
+                    <div class="toggle-track"></div>
+                  </label>
+                  <span>Link</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Filter behavior -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Filter behavior
+                <span class="info-icon" title="How filter terms are matched against feed content">ⓘ</span>
+              </div>
+              <select id="fs-filter-behavior" class="detail-select">
+                <option value="anywhere">Match sequence anywhere</option>
+                <option value="exact">Exact match</option>
+                <option value="word">Match whole word</option>
+                <option value="start">Match at start</option>
+              </select>
+            </div>
+
+            <!-- Must contain ALL -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Posted items must contain all the terms</div>
+              <input type="text" id="fs-filter-all" class="filter-terms-input" placeholder="" />
+              <div class="filter-hint">Separate terms using a comma.</div>
+            </div>
+
+            <!-- Must contain ANY -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Posted items must contain any of the terms</div>
+              <input type="text" id="fs-filter-any" class="filter-terms-input" placeholder="" />
+              <div class="filter-hint">Separate terms using a comma.</div>
+            </div>
+
+            <!-- Ignore items -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Ignore items that contain any of the terms</div>
+              <input type="text" id="fs-filter-ignore" class="filter-terms-input" placeholder="" />
+              <div class="filter-hint">Separate terms using a comma.</div>
+            </div>
+
+          </div>
+
+          <!-- Location -->
+          <div class="feed-tab-panel" id="ftab-location" style="display:none;">
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Location Tag
+                <span class="info-icon" title="Add a location tag to posts from this feed">ⓘ</span>
+              </div>
+              <input type="text" id="fs-location" class="detail-name-input" placeholder="e.g. New York, USA" />
+              <div class="filter-hint">Tag your posts with a location. Leave blank for no location.</div>
+            </div>
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Timezone</div>
+              <select id="fs-timezone" class="detail-select">
+                <option value="UTC">UTC</option>
+                <option value="America/New_York">Eastern Time (ET)</option>
+                <option value="America/Chicago">Central Time (CT)</option>
+                <option value="America/Denver">Mountain Time (MT)</option>
+                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                <option value="Europe/London">London (GMT)</option>
+                <option value="Europe/Paris">Paris (CET)</option>
+                <option value="Asia/Dubai">Dubai (GST)</option>
+                <option value="Asia/Kolkata">India (IST)</option>
+                <option value="Asia/Tokyo">Tokyo (JST)</option>
+                <option value="Australia/Sydney">Sydney (AEST)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Advanced -->
+          <div class="feed-tab-panel" id="ftab-advanced" style="display:none;">
+
+            <!-- Body Posting Options -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Body Posting Options
+                <span class="info-icon" title="Which part of the feed item to use as the post body">ⓘ</span>
+              </div>
+              <select id="fs-body-option" class="detail-select">
+                <option value="summary">Prefer Summary Content</option>
+                <option value="full">Prefer Full Content</option>
+                <option value="title">Title Only</option>
+                <option value="none">No Body</option>
+              </select>
+            </div>
+
+            <!-- Republish with updated timestamps -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Republish items with updated timestamps
+                <span class="info-icon" title="Re-post items when the feed updates their timestamp">ⓘ</span>
+              </div>
+              <div class="advanced-toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="fs-republish" />
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="advanced-toggle-label" id="fs-republish-label">Off</span>
+              </div>
+            </div>
+
+            <!-- Image Selection Order -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Image Selection Order</div>
+              <select id="fs-image-order" class="detail-select">
+                <option value="og">Open Graph Tags First</option>
+                <option value="media">Media Enclosures First</option>
+                <option value="content">Content Images First</option>
+                <option value="none">No Images</option>
+              </select>
+            </div>
+
+            <!-- Pass Feedburner links -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">
+                Pass Feedburner links to your link shortening service
+                <span class="info-icon" title="Use Feedburner tracking links instead of original URLs">ⓘ</span>
+              </div>
+              <div class="advanced-toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="fs-feedburner" />
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="advanced-toggle-label" id="fs-feedburner-label">Off</span>
+              </div>
+            </div>
+
+            <!-- Ignore items with no title -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Ignore feed items with no title</div>
+              <div class="advanced-toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="fs-ignore-notitle" />
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="advanced-toggle-label" id="fs-ignore-notitle-label">Off</span>
+              </div>
+            </div>
+
+            <!-- Do not sort by timestamps -->
+            <div class="feed-settings-section">
+              <div class="detail-field-label">Do not sort feed by item timestamps</div>
+              <div class="advanced-toggle-row">
+                <label class="toggle">
+                  <input type="checkbox" id="fs-nosort" />
+                  <div class="toggle-track"></div>
+                </label>
+                <span class="advanced-toggle-label" id="fs-nosort-label">Off</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="feed-settings-footer">
+          <button class="btn btn-secondary" onclick="showPage('feeds')">cancel</button>
+          <button class="btn btn-primary" onclick="saveFeedSettings()">Save</button>
+        </div>
+      </div>
+
+      <!-- History view -->
+      <div id="feed-history-view" style="display:none;">
+        <div class="feed-settings-section">
+          <div class="feed-settings-section-title">Post History</div>
+          <div id="feed-history-items" class="history-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Add Feed Modal ── -->
+<div class="modal-overlay" id="modal-feed">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-feed-title">Add RSS Feed</h2>
+      <button class="modal-close" onclick="closeModal('modal-feed')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="feed-id" />
+      <div class="field"><label>Feed Name</label><input type="text" id="feed-name" placeholder="My Blog" /></div>
+      <div class="field"><label>RSS Feed URL</label><input type="url" id="feed-url" placeholder="https://example.com/feed.xml" /></div>
+      <div class="field-row">
+        <div class="field"><label>Check Every (mins)</label><input type="number" id="feed-interval" value="30" min="5" /></div>
+        <div class="field"><label>Max Items</label><input type="number" id="feed-max" value="3" min="1" max="20" /></div>
+      </div>
+      <div class="field"><label>Prefix</label><input type="text" id="feed-prefix" placeholder="📰 New:" /></div>
+      <div class="field"><label>Suffix / Hashtags</label><input type="text" id="feed-suffix" placeholder="#news #blog" /></div>
+      <div class="field">
+        <label>Smart Hashtags</label>
+        <select id="feed-hashtags">
+          <option value="none">No auto-hashtags</option>
+          <option value="ai">AI-generated hashtags</option>
+          <option value="category">Use feed category</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Posting Mode</label>
+        <select id="feed-mode">
+          <option value="1">Post immediately</option>
+          <option value="0">Add to queue</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Connect Platforms</label>
+        <div id="platform-checkboxes" class="checkbox-group"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-feed')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFeed()">Save Feed</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Platform Modal ── -->
+<div class="modal-overlay" id="modal-platform">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Connect Platform</h2>
+      <button class="modal-close" onclick="closeModal('modal-platform')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Platform</label>
+        <select id="platform-type" onchange="updatePlatformFields()">
+          <option value="">Select platform...</option>
+          <option value="bluesky">🦋 Bluesky</option>
+          <option value="twitter">🐦 Twitter / X</option>
+          <option value="discord">💬 Discord</option>
+          <option value="facebook">📘 Facebook (coming soon)</option>
+          <option value="instagram">📸 Instagram (coming soon)</option>
+          <option value="tiktok">🎵 TikTok (coming soon)</option>
+          <option value="youtube">▶️ YouTube (coming soon)</option>
+          <option value="tumblr">📝 Tumblr (coming soon)</option>
+        </select>
+      </div>
+      <div class="field"><label>Display Name</label><input type="text" id="platform-name" placeholder="e.g. My Bluesky" /></div>
+      <div id="platform-extra-fields"></div>
+      <div id="platform-coming-soon" class="coming-soon-msg" style="display:none;">⚠️ This platform requires developer approval and will be available in a future update.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-platform')">Cancel</button>
+      <button class="btn btn-primary" id="save-platform-btn" onclick="savePlatform()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<script src="feed-search.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
