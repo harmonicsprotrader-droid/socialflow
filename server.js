@@ -24,73 +24,14 @@ async function initDB() {
   `);
   console.log('DB ready');
 }
-// ── Explore: Search RSS feeds by topic ───────────────────────────────────────
+
+// ── Find RSS from URL or Topic ────────────────────────────────────────────────
 app.post('/api/find-feed', async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL required' });
 
   const isTopic = !url.startsWith('http');
-if (isTopic) {
-    try {
-      const query = encodeURIComponent(url);
-      const searchRes = await fetch(`https://cloud.feedly.com/v3/search/feeds?query=${query}&count=10`);
-      const data = await searchRes.json();
-      const feeds = (data.results || []).slice(0, 5).map(r => ({
-        title: r.title || r.feedId,
-        url: r.feedId.replace('feed/', ''),
-        description: r.description || '',
-      }));
-      return res.json({ feeds });
-    } catch(e) {
-      return res.json({ feeds: [] });
-    }
-  }
-      }
-      return res.json({ feeds });
-    } catch(e) {
-      return res.json({ feeds: [] });
-    }
-  }
 
-  try {
-    // Search Google for RSS feeds on this topic
-    const query = encodeURIComponent(`${topic} RSS feed site:feedburner.com OR inurl:rss OR inurl:feed`);
-    const searchRes = await fetch(`https://www.google.com/search?q=${query}&num=10`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-    });
-    const html = await searchRes.text();
-
-    // Extract URLs from search results
-    const urlRegex = /https?:\/\/[^\s"<>]+(?:rss|feed|atom)[^\s"<>]*/gi;
-    const urls = [...new Set(html.match(urlRegex) || [])].slice(0, 10);
-
-    // Validate each URL as a real RSS feed
-    const feeds = [];
-    for (const url of urls) {
-      try {
-        const parsed = await parser.parseURL(url);
-        feeds.push({
-          title: parsed.title || url,
-          url,
-          description: parsed.description || '',
-        });
-        if (feeds.length >= 5) break;
-      } catch(e) {}
-    }
-
-    res.json({ feeds });
-  } catch(e) {
-    console.error('[explore]', e.message);
-    res.json({ feeds: [] });
-  }
-});
-// ── Find RSS from URL ─────────────────────────────────────────────────────────
-app.post('/api/find-feed', async (req, res) => {
-  const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'URL required' });
-  
-  // If it's not a URL, treat it as a topic search
-  const isTopic = !url.startsWith('http');
   if (isTopic) {
     try {
       const query = encodeURIComponent(url);
@@ -110,27 +51,21 @@ app.post('/api/find-feed', async (req, res) => {
   const candidates = [];
 
   try {
-    // First try the URL directly as a feed
     try {
       await parser.parseURL(url);
       candidates.push(url);
     } catch(e) {}
 
     if (candidates.length === 0) {
-      // Fetch the page HTML and look for RSS links
       const pageRes = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
       const html = await pageRes.text();
-
-      // Find feed links in HTML
       const feedRegex = /<link[^>]+type=["'](application\/rss\+xml|application\/atom\+xml)["'][^>]*href=["']([^"']+)["']/gi;
       let match;
       while ((match = feedRegex.exec(html)) !== null) {
         candidates.push(match[2]);
       }
-
-      // Also try common feed paths
       const base = new URL(url);
-      const commonPaths = ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/feed/rss', '/feeds/posts/default'];
+      const commonPaths = ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/feed/rss'];
       for (const p of commonPaths) {
         try {
           const testUrl = base.origin + p;
@@ -143,7 +78,6 @@ app.post('/api/find-feed', async (req, res) => {
 
     if (candidates.length === 0) return res.json({ feeds: [] });
 
-    // Validate and get feed info
     const feeds = [];
     for (const feedUrl of candidates.slice(0, 5)) {
       try {
