@@ -8,7 +8,7 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg: #f0f2f5;
+    --bg: #f4f6f9;
     --white: #ffffff;
     --border: #e1e5eb;
     --muted: #8a94a6;
@@ -17,138 +17,36 @@
     --accent-hover: #1558c0;
     --green: #28a745;
     --red: #dc3545;
-    --radius: 6px;
+    --yellow: #ffc107;
+    --radius: 8px;
     --shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
 
-  /* ── Top Nav ── */
-  .topnav {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    height: 58px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow);
-  }
+  .sidebar { width: 220px; min-height: 100vh; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: fixed; top: 0; left: 0; bottom: 0; box-shadow: var(--shadow); }
+  .logo { font-size: 20px; font-weight: 700; color: var(--accent); padding: 0 20px 28px; display: flex; align-items: center; gap: 8px; }
+  .logo-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .nav-label { font-size: 10px; color: var(--muted); padding: 0 20px 6px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
+  .sidebar-btn { display: flex; align-items: center; gap: 10px; padding: 10px 20px; background: none; border: none; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; text-align: left; border-left: 3px solid transparent; transition: all 0.15s; }
+  .sidebar-btn:hover { color: var(--text); background: var(--bg); }
+  .sidebar-btn.active { color: var(--accent); border-left-color: var(--accent); background: #e8f0fd; }
+  .sidebar-spacer { flex: 1; }
+  .sidebar-version { padding: 20px; font-size: 11px; color: var(--muted); }
 
-  .topnav-logo {
-    font-size: 22px;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin-right: 40px;
-    letter-spacing: -1px;
-  }
-
-  .topnav-links {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    flex: 1;
-  }
-
-  .topnav-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding: 8px 16px;
-    border: none;
-    background: none;
-    color: var(--muted);
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: var(--radius);
-    transition: all 0.15s;
-    min-width: 64px;
-  }
-
-  .topnav-btn svg { color: var(--muted); }
-  .topnav-btn:hover { color: var(--text); background: var(--bg); }
-  .topnav-btn:hover svg { color: var(--text); }
-  .topnav-btn.active { color: var(--accent); }
-  .topnav-btn.active svg { color: var(--accent); }
-
-  .topnav-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-left: auto;
-  }
-
-  .topnav-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  /* ── Layout ── */
-  .layout { display: flex; min-height: calc(100vh - 58px); }
-
-  /* ── Sidebar ── */
-  .sidebar {
-    width: 200px;
-    background: var(--white);
-    border-right: 1px solid var(--border);
-    padding: 16px 0;
-    flex-shrink: 0;
-  }
-
-  .sidebar-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 16px;
-    background: none;
-    border: none;
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    cursor: pointer;
-    width: 100%;
-    text-align: left;
-    transition: all 0.15s;
-    border-radius: 0;
-  }
-
-  .sidebar-btn:hover { background: var(--bg); }
-  .sidebar-btn.active { background: #e8f0fd; color: var(--accent); font-weight: 500; }
-  .sidebar-btn svg { color: var(--muted); flex-shrink: 0; }
-  .sidebar-btn.active svg { color: var(--accent); }
-
-  /* ── Content ── */
-  .content { flex: 1; padding: 24px 28px; }
-
+  .main { margin-left: 220px; flex: 1; padding: 32px; max-width: 960px; }
   .page { display: none; }
   .page.active { display: block; }
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+  .page-subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-  .page-header { margin-bottom: 20px; }
-  .page-title { font-size: 18px; font-weight: 600; color: var(--text); }
-  .page-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
 
-  /* ── Cards ── */
-  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
-  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
-
-  /* ── Buttons ── */
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); border: none; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius); border: none; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-danger { background: #fff; color: var(--red); border: 1px solid #f5c6cb; }
@@ -158,241 +56,208 @@
   .btn-success { background: #fff; color: var(--green); border: 1px solid #c3e6cb; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ── Stats ── */
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-  .stat-value { font-size: 26px; font-weight: 700; color: var(--accent); }
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
   .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-  /* ── Feed list ── */
-  .feed-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; transition: border-color 0.15s; }
+  .feed-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; box-shadow: var(--shadow); transition: border-color 0.15s; }
   .feed-item:hover { border-color: var(--accent); }
-  .feed-icon { font-size: 18px; flex-shrink: 0; }
+  .feed-icon { font-size: 20px; flex-shrink: 0; }
   .feed-info { flex: 1; min-width: 0; }
-  .feed-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .feed-url { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .feed-badge { font-size: 11px; padding: 2px 10px; border-radius: 20px; flex-shrink: 0; font-weight: 500; }
+  .feed-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feed-url { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feed-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; font-weight: 500; }
   .badge-active { background: #d4edda; color: var(--green); }
   .badge-inactive { background: #f8f9fa; color: var(--muted); }
-  .feed-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .feed-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
-  /* ── Platforms ── */
-  .platforms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-  .platform-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; gap: 12px; }
-  .platform-icon { font-size: 26px; }
-  .platform-name { font-size: 13px; font-weight: 500; }
+  .platforms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .platform-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
+  .platform-icon { font-size: 28px; }
+  .platform-name { font-size: 13px; font-weight: 600; }
   .platform-type { font-size: 11px; color: var(--muted); }
   .platform-card .btn { margin-left: auto; }
 
-  /* ── History ── */
-  .history-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .history-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
   .history-item:last-child { border-bottom: none; }
   .history-title { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .history-meta { color: var(--muted); font-size: 11px; flex-shrink: 0; }
   .badge-posted { background: #d4edda; color: var(--green); padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
   .badge-failed { background: #f8d7da; color: var(--red); padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
 
-  /* ── Forms ── */
-  .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-  .field input, .field select, .field textarea { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color 0.15s; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .field input, .field select, .field textarea { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 12px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color 0.15s; }
   .field input:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,111,232,0.1); }
-  .field-hint { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .field-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
   .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-  /* ── Modal ── */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--white); border-radius: 8px; padding: 24px; width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-  .modal-title { font-size: 15px; font-weight: 600; }
+  .modal { background: var(--white); border-radius: 12px; padding: 24px; width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .modal-title { font-size: 16px; font-weight: 700; }
   .modal-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
-  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
 
-  /* ── Toggle ── */
-  .toggle { position: relative; display: inline-block; width: 36px; height: 20px; cursor: pointer; }
+  .toggle { position: relative; display: inline-block; width: 38px; height: 22px; cursor: pointer; }
   .toggle input { opacity: 0; width: 0; height: 0; }
-  .toggle-track { position: absolute; inset: 0; background: #cbd5e0; border-radius: 20px; transition: background 0.2s; }
-  .toggle-track::after { content: ''; position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+  .toggle-track { position: absolute; inset: 0; background: #cbd5e0; border-radius: 22px; transition: background 0.2s; }
+  .toggle-track::after { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
   .toggle input:checked + .toggle-track { background: var(--green); }
   .toggle input:checked + .toggle-track::after { transform: translateX(16px); }
 
-  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
   .topbar-actions { display: flex; gap: 8px; }
   .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 13px; line-height: 1.8; }
-  .info-box { background: #e8f0fd; border: 1px solid #c5d8fb; border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: var(--accent); line-height: 1.6; margin-bottom: 12px; }
+  .info-box { background: #e8f0fd; border: 1px solid #c5d8fb; border-radius: var(--radius); padding: 12px 14px; font-size: 12px; color: var(--accent); line-height: 1.6; margin-bottom: 14px; }
 
-  /* ── Discover ── */
-  .category-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .category-tab { padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .category-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .category-tab { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .category-tab:hover { border-color: var(--accent); color: var(--accent); }
   .category-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-  .discover-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-  .discover-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; transition: all 0.15s; }
-  .discover-card:hover { border-color: var(--accent); }
+  .discover-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .discover-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); transition: all 0.15s; }
+  .discover-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(26,111,232,0.1); }
   .discover-card-top { display: flex; align-items: center; gap: 10px; }
-  .discover-card-icon { font-size: 22px; }
+  .discover-card-icon { font-size: 24px; }
   .discover-card-name { font-size: 13px; font-weight: 600; color: var(--text); }
-  .discover-card-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .discover-card-url { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .discover-tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: #e8f0fd; color: var(--accent); font-weight: 500; }
+  .discover-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .discover-card-url { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .discover-tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: #e8f0fd; color: var(--accent); font-weight: 500; }
   .discover-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); }
 
-  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<!-- ── Top Nav ── -->
-<nav class="topnav">
-  <div class="topnav-logo">SocialFlow</div>
-  <div class="topnav-links">
-    <button class="topnav-btn active" data-page="dashboard" onclick="setTopNav(this,'dashboard')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Dashboard
-    </button>
-    <button class="topnav-btn" data-page="feeds" onclick="setTopNav(this,'feeds')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-      Automate
-    </button>
-    <button class="topnav-btn" data-page="history" onclick="setTopNav(this,'history')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      History
-    </button>
-    <button class="topnav-btn" data-page="stats" onclick="setTopNav(this,'stats')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Stats
-    </button>
-    <button class="topnav-btn" data-page="platforms" onclick="setTopNav(this,'platforms')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      Outputs
-    </button>
-  </div>
-  <div class="topnav-right">
-    <div class="topnav-avatar">P</div>
-  </div>
+<nav class="sidebar">
+  <div class="logo"><div class="logo-dot"></div>SocialFlow</div>
+  <div class="nav-label">Automate</div>
+  <button class="sidebar-btn active" data-page="dashboard" onclick="showPage('dashboard')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </button>
+  <button class="sidebar-btn" data-page="discover" onclick="showPage('discover')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Discover Feeds
+  </button>
+  <button class="sidebar-btn" data-page="feeds" onclick="showPage('feeds')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+    My Feeds
+  </button>
+  <div class="nav-label" style="margin-top:16px;">Outputs</div>
+  <button class="sidebar-btn" data-page="platforms" onclick="showPage('platforms')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    Platforms
+  </button>
+  <div class="nav-label" style="margin-top:16px;">Reports</div>
+  <button class="sidebar-btn" data-page="history" onclick="showPage('history')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    History
+  </button>
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-version">v2.0.0 · PostgreSQL</div>
 </nav>
 
-<!-- ── Layout ── -->
-<div class="layout">
+<main class="main">
 
-  <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <!-- populated by JS based on active tab -->
-  </nav>
-
-  <!-- Content -->
-  <div class="content">
-
-    <!-- Dashboard -->
-    <div class="page active" id="page-dashboard">
-      <div class="topbar">
-        <div class="page-header" style="margin-bottom:0">
-          <div class="page-title">Dashboard</div>
-          <div class="page-subtitle">Overview of your automation</div>
-        </div>
-        <button class="btn btn-primary" onclick="showPage('discover')">+ Add Feed</button>
+  <!-- Dashboard -->
+  <div class="page active" id="page-dashboard">
+    <div class="topbar">
+      <div class="page-header" style="margin-bottom:0">
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Overview of your automation</div>
       </div>
-      <div class="stats-row" id="stats-row">
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Active Feeds</div></div>
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Platforms</div></div>
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Posted Today</div></div>
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Total Posts</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Recent Posts</div>
-        <div id="dashboard-history"><div class="empty-state">No posts yet.</div></div>
-      </div>
+      <button class="btn btn-primary" onclick="showPage('discover')">+ Add Feed</button>
     </div>
-
-    <!-- Automate / My Feeds -->
-    <div class="page" id="page-feeds">
-      <div class="topbar">
-        <div class="page-header" style="margin-bottom:0">
-          <div class="page-title">Automate</div>
-          <div class="page-subtitle">Manage your RSS feed automations</div>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn btn-ghost" onclick="showPage('discover')">🔍 Discover</button>
-          <button class="btn btn-primary" onclick="openAddFeed()">+ Add Feed</button>
-        </div>
-      </div>
-      <div id="feeds-list"><div class="empty-state">No feeds yet.<br>Click "Discover" to browse popular feeds!</div></div>
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Active Feeds</div></div>
+      <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Platforms</div></div>
+      <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Posted Today</div></div>
+      <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Total Posts</div></div>
     </div>
-
-    <!-- Discover -->
-    <div class="page" id="page-discover">
-      <div class="page-header">
-        <div class="page-title">Discover Feeds</div>
-        <div class="page-subtitle">Find and add RSS feeds from any website</div>
-      </div>
-      <div class="card">
-        <div class="card-title">🔍 Find Feed from any Website</div>
-        <div style="display:flex;gap:10px;">
-          <input type="url" id="find-feed-url" placeholder="Paste any website URL e.g. https://cointelegraph.com"
-            style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
-          <button class="btn btn-primary" onclick="findFeedFromUrl()">Find RSS</button>
-        </div>
-        <div id="find-feed-results" style="margin-top:10px;"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Browse by Category</div>
-        <div class="category-tabs">
-          <button class="category-tab active" onclick="filterCategory('all', this)">All</button>
-          <button class="category-tab" onclick="filterCategory('crypto', this)">🪙 Crypto</button>
-          <button class="category-tab" onclick="filterCategory('forex', this)">💱 Forex</button>
-          <button class="category-tab" onclick="filterCategory('stocks', this)">📈 Stocks</button>
-          <button class="category-tab" onclick="filterCategory('tech', this)">💻 Tech</button>
-          <button class="category-tab" onclick="filterCategory('news', this)">📰 News</button>
-        </div>
-        <div class="discover-grid" id="discover-grid"></div>
-      </div>
+    <div class="card">
+      <div class="card-title">Recent Posts</div>
+      <div id="dashboard-history"><div class="empty-state">No posts yet.</div></div>
     </div>
-
-    <!-- Platforms / Outputs -->
-    <div class="page" id="page-platforms">
-      <div class="topbar">
-        <div class="page-header" style="margin-bottom:0">
-          <div class="page-title">Outputs</div>
-          <div class="page-subtitle">Connected social media platforms</div>
-        </div>
-        <button class="btn btn-primary" onclick="openAddPlatform()">+ Connect Platform</button>
-      </div>
-      <div class="platforms-grid" id="platforms-grid">
-        <div class="empty-state" style="grid-column:1/-1">No platforms connected yet.</div>
-      </div>
-    </div>
-
-    <!-- History -->
-    <div class="page" id="page-history">
-      <div class="page-header">
-        <div class="page-title">History</div>
-        <div class="page-subtitle">All posts sent by SocialFlow</div>
-      </div>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div id="history-list"><div class="empty-state">No posts yet.</div></div>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="page" id="page-stats">
-      <div class="page-header">
-        <div class="page-title">Stats</div>
-        <div class="page-subtitle">Your posting statistics</div>
-      </div>
-      <div class="stats-row" id="stats-page-row">
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Active Feeds</div></div>
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Platforms</div></div>
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Posted Today</div></div>
-        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Total Posts</div></div>
-      </div>
-    </div>
-
   </div>
-</div>
+
+  <!-- Discover -->
+  <div class="page" id="page-discover">
+    <div class="page-header">
+      <div class="page-title">Discover Feeds</div>
+      <div class="page-subtitle">Find and add RSS feeds from any website</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔍 Find Feed from any Website</div>
+      <div style="display:flex;gap:10px;">
+        <input type="url" id="find-feed-url" placeholder="Paste any website URL e.g. https://cointelegraph.com"
+          style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
+        <button class="btn btn-primary" onclick="findFeedFromUrl()">Find RSS</button>
+      </div>
+      <div id="find-feed-results" style="margin-top:12px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Browse by Category</div>
+      <div class="category-tabs">
+        <button class="category-tab active" onclick="filterCategory('all', this)">All</button>
+        <button class="category-tab" onclick="filterCategory('crypto', this)">🪙 Crypto</button>
+        <button class="category-tab" onclick="filterCategory('forex', this)">💱 Forex</button>
+        <button class="category-tab" onclick="filterCategory('stocks', this)">📈 Stocks</button>
+        <button class="category-tab" onclick="filterCategory('tech', this)">💻 Tech</button>
+        <button class="category-tab" onclick="filterCategory('news', this)">📰 News</button>
+      </div>
+      <div class="discover-grid" id="discover-grid"></div>
+    </div>
+  </div>
+
+  <!-- My Feeds -->
+  <div class="page" id="page-feeds">
+    <div class="topbar">
+      <div class="page-header" style="margin-bottom:0">
+        <div class="page-title">My Feeds</div>
+        <div class="page-subtitle">Your active automations</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="showPage('discover')">🔍 Discover</button>
+        <button class="btn btn-primary" onclick="openAddFeed()">+ Add Manual</button>
+      </div>
+    </div>
+    <div id="feeds-list"><div class="empty-state">No feeds yet.<br>Click "Discover Feeds" to get started!</div></div>
+  </div>
+
+  <!-- Platforms -->
+  <div class="page" id="page-platforms">
+    <div class="topbar">
+      <div class="page-header" style="margin-bottom:0">
+        <div class="page-title">Platforms</div>
+        <div class="page-subtitle">Connected social accounts</div>
+      </div>
+      <button class="btn btn-primary" onclick="openAddPlatform()">+ Connect Platform</button>
+    </div>
+    <div class="platforms-grid" id="platforms-grid">
+      <div class="empty-state" style="grid-column:1/-1">No platforms connected yet.</div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="page" id="page-history">
+    <div class="page-header">
+      <div class="page-title">History</div>
+      <div class="page-subtitle">All posts sent by SocialFlow</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="history-list"><div class="empty-state">No posts yet.</div></div>
+    </div>
+  </div>
+
+</main>
 
 <!-- Modal: Add Feed -->
 <div class="modal-overlay" id="modal-feed">
