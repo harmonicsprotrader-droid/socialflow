@@ -871,6 +871,38 @@
   </div>
 </div>
 
+  <script>
+    async function savePlatform() {
+        const type = document.getElementById('platform-type').value;
+        const name = document.getElementById('platform-name').value.trim();
+        if (!type) { alert('Please select a platform type.'); return; }
+            if (!name) { alert('Please enter a display name.'); return; }
+                if (typeof COMING_SOON !== 'undefined' && COMING_SOON.includes(type)) { alert('This platform is coming soon.'); return; }
+                    let config = {};
+        if (type === 'discord') {
+              const webhook = document.getElementById('discord-webhook')?.value.trim();
+              if (!webhook) { alert('Enter a Discord webhook URL.'); return; }
+                    config = { webhookUrl: webhook };
+        } else if (type === 'bluesky') {
+              const handle = document.getElementById('bsky-handle')?.value.trim();
+              const password = document.getElementById('bsky-password')?.value.trim();
+              if (!handle || !password) { alert('Enter Bluesky handle and app password.'); return; }
+                    config = { handle, password };
+        }
+            const btn = document.getElementById('save-platform-btn');
+        btn.textContent = 'Connecting...';
+        btn.disabled = true;
+        try {
+              const res = await fetch('/api/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, type, config }) });
+              const data = await res.json();
+              if (!res.ok) { alert(data.error || 'Failed to connect'); return; }
+                    document.getElementById('modal-platform').classList.remove('open');
+              if (typeof loadPlatforms === 'function') loadPlatforms();
+                    if (typeof loadAccountGrid === 'function') loadAccountGrid();
+        } catch(e) { alert('Error: ' + e.message); }
+            finally { btn.textContent = 'Connect'; btn.disabled = false; }
+    }
+  </script>
 <script src="feed-search.js"></script>
 <script src="app.js"></script>
 </body>
