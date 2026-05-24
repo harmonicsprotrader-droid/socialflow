@@ -134,7 +134,7 @@ async function postItem(platform, item, feedSettings) {
     case 'twitter':  return postToTwitter(title, url, prefix, suffix);
     case 'bluesky':  return postToBluesky(title, url, prefix, suffix, imageUrl, config);
     case 'discord':  return postToDiscord(title, url, prefix, suffix, imageUrl, config);
-    case 'threads': return postToThreads(title, url, prefix, suffix, imageUrl, config);`n    case 'tiktok': return postToTikTok(title, url, prefix, suffix, config);`n    default: throw new Error(`Platform not supported yet: ${platform.type}`);
+   default: throw new Error(`Platform not supported yet: ${platform.type}`); ;
   }
 }
 
