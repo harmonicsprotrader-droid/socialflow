@@ -1,333 +1,244 @@
-// ── server.js ──────────────────────────────────────────────────────────────────
-require('dotenv').config();
-
+// ── SocialFlow Server ─────────────────────────────────────────────────────────
 const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
-const path = require('path');
+const Parser = require('rss-parser');
+const fetch = require('node-fetch');
 const cron = require('node-cron');
-const db = require('./db');
-const { checkAllFeeds, checkFeed } = require('./rss-checker');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const parser = new Parser();
 
-// ── Middleware ────────────────────────────────────────────────────────────────
-
-app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'socialflow-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
-}));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Auth middleware (bypass - no login required) ──────────────────────────────
+// ── Simple JSON Database ──────────────────────────────────────────────────────
+const DB_FILE = path.join(__dirname, 'data.json');
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-
-function requireAuth(req, res, next) {
-  return next();
+function loadDB() {
+  if (!fs.existsSync(DB_FILE)) {
+    const empty = { platforms: [], feeds: [], feedPlatforms: [], history: [], seenItems: [], _nextId: { platforms: 1, feeds: 1, history: 1 } };
+    fs.writeFileSync(DB_FILE, JSON.stringify(empty, null, 2));
+    return empty;
+  }
+  return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
 }
 
-// ── Auth routes ───────────────────────────────────────────────────────────────
+function saveDB(db) {
+  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+}
 
-app.post('/api/login', (req, res) => {
-  const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
-    req.session.authenticated = true;
-    res.json({ success: true });
-  } else {
-    res.status(401).json({ error: 'Invalid password' });
+function nextId(db, table) {
+  if (!db._nextId) db._nextId = {};
+  if (!db._nextId[table]) db._nextId[table] = 1;
+  return db._nextId[table]++;
+}
+
+// ── Platforms API ─────────────────────────────────────────────────────────────
+app.get('/api/platforms', (req, res) => {
+  const db = loadDB();
+  res.json(db.platforms);
+});
+
+app.post('/api/platforms', (req, res) => {
+  const db = loadDB();
+  const { name, type, config } = req.body;
+  const platform = { id: nextId(db, 'platforms'), name, type, config: config || {} };
+  db.platforms.push(platform);
+  saveDB(db);
+  res.json({ id: platform.id });
+});
+
+app.delete('/api/platforms/:id', (req, res) => {
+  const db = loadDB();
+  const id = parseInt(req.params.id);
+  db.platforms = db.platforms.filter(p => p.id !== id);
+  db.feedPlatforms = db.feedPlatforms.filter(fp => fp.platform_id !== id);
+  saveDB(db);
+  res.json({ ok: true });
+});
+
+app.get('/api/feeds', (req, res) => {
+  const db = loadDB();
+  res.json(db.feeds);
+});
+
+app.post('/api/feeds', (req, res) => {
+  const db = loadDB();
+  const { name, url, check_interval, max_items, prefix, suffix, post_immediately, active } = req.body;
+  if (db.feeds.find(f => f.url === url)) return res.status(400).json({ error: 'Feed already exists' });
+  const feed = { id: nextId(db, 'feeds'), name, url, check_interval: check_interval||30, max_items: max_items||3, prefix: prefix||'', suffix: suffix||'', post_immediately: post_immediately?1:0, active: active?1:0, last_checked: null };
+  db.feeds.push(feed);
+  saveDB(db);
+  res.json({ id: feed.id });
+});
+
+app.put('/api/feeds/:id', (req, res) => {
+  const db = loadDB();
+  const id = parseInt(req.params.id);
+  const idx = db.feeds.findIndex(f => f.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  db.feeds[idx] = { ...db.feeds[idx], ...req.body, id };
+  saveDB(db);
+  res.json({ ok: true });
+});
+
+app.delete('/api/feeds/:id', (req, res) => {
+  const db = loadDB();
+  const id = parseInt(req.params.id);
+  db.feeds = db.feeds.filter(f => f.id !== id);
+  db.feedPlatforms = db.feedPlatforms.filter(fp => fp.feed_id !== id);
+  db.seenItems = (db.seenItems || []).filter(s => s.feed_id !== id);
+  saveDB(db);
+  res.json({ ok: true });
+});
+
+app.get('/api/feeds/:id/platforms', (req, res) => {
+  const db = loadDB();
+  const feedId = parseInt(req.params.id);
+  const platformIds = db.feedPlatforms.filter(fp => fp.feed_id === feedId).map(fp => fp.platform_id);
+  res.json(db.platforms.filter(p => platformIds.includes(p.id)));
+});
+
+app.post('/api/feeds/:id/platforms', (req, res) => {
+  const db = loadDB();
+  const feedId = parseInt(req.params.id);
+  const platformId = parseInt(req.body.platform_id);
+  if (!db.feedPlatforms.find(fp => fp.feed_id === feedId && fp.platform_id === platformId)) {
+    db.feedPlatforms.push({ feed_id: feedId, platform_id: platformId });
+    saveDB(db);
   }
+  res.json({ ok: true });
 });
 
-app.post('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ success: true });
+app.delete('/api/feeds/:id/platforms/:pid', (req, res) => {
+  const db = loadDB();
+  db.feedPlatforms = db.feedPlatforms.filter(fp => !(fp.feed_id === parseInt(req.params.id) && fp.platform_id === parseInt(req.params.pid)));
+  saveDB(db);
+  res.json({ ok: true });
 });
 
-app.get('/api/auth/status', (req, res) => {
-  res.json({ authenticated: true });
+app.post('/api/feeds/:id/check', async (req, res) => {
+  const db = loadDB();
+  const feed = db.feeds.find(f => f.id === parseInt(req.params.id));
+  if (!feed) return res.status(404).json({ error: 'Not found' });
+  await checkFeed(feed);
+  res.json({ ok: true });
 });
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
+app.get('/api/history', (req, res) => {
+  const db = loadDB();
+  res.json((db.history || []).slice(-200).reverse());
+});
 
-app.get('/api/stats', requireAuth, (req, res) => {
-  const startOfDay = Math.floor(new Date().setHours(0, 0, 0, 0) / 1000);
+app.get('/api/stats', (req, res) => {
+  const db = loadDB();
+  const todayStart = Math.floor(new Date().setHours(0,0,0,0) / 1000);
+  const history = db.history || [];
   res.json({
-    totalFeeds: db.get('feeds').size().value(),
-    activeFeeds: db.get('feeds').filter({ active: 1 }).size().value(),
-    activePlatforms: db.get('platforms').filter({ active: 1 }).size().value(),
-    totalPosted: db.get('posted_items').filter({ status: 'posted' }).size().value(),
-    postedToday: db.get('posted_items').filter(i => i.posted_at >= startOfDay).size().value(),
+    activeFeeds: db.feeds.filter(f => f.active).length,
+    platforms: db.platforms.length,
+    todayPosts: history.filter(h => h.posted_at >= todayStart).length,
+    totalPosts: history.length,
   });
 });
 
-// ── Feeds ─────────────────────────────────────────────────────────────────────
-
-app.get('/api/feeds', requireAuth, (req, res) => {
-  const feeds = db.get('feeds').value().map(f => ({
-    ...f,
-    platform_count: db.get('feed_platforms').filter({ feed_id: f.id }).size().value(),
-    posts_count: db.get('posted_items').filter({ feed_id: f.id }).size().value(),
-  }));
-  res.json(feeds);
-});
-
-app.post('/api/feeds', requireAuth, (req, res) => {
-  const { name, url, check_interval, max_items, prefix, suffix, post_immediately } = req.body;
-  if (!name || !url) return res.status(400).json({ error: 'Name and URL required' });
-
-  const id = db.get('_nextId.feeds').value();
-  db.set('_nextId.feeds', id + 1).write();
-
-  const feed = {
-    id, name, url,
-    check_interval: parseInt(check_interval) || 30,
-    max_items: parseInt(max_items) || 3,
-    max_per_day: 10,
-    trickle: 'off',
-    prefix: prefix || '',
-    suffix: suffix || '',
-    post_immediately: post_immediately ? 1 : 0,
-    active: 1,
-    last_checked: 0,
-    filter_all: '', filter_any: '', filter_ignore: '',
-    created_at: Math.floor(Date.now() / 1000)
-  };
-
-  db.get('feeds').push(feed).write();
-  res.json(feed);
-});
-
-app.get('/api/feeds/:id', requireAuth, (req, res) => {
-  const feed = db.get('feeds').find({ id: parseInt(req.params.id) }).value();
-  if (!feed) return res.status(404).json({ error: 'Feed not found' });
-  const platforms = db.get('feed_platforms')
-    .filter({ feed_id: feed.id })
-    .map(fp => db.get('platforms').find({ id: fp.platform_id }).value())
-    .filter(Boolean)
-    .value();
-  res.json({ ...feed, platforms });
-});
-
-app.get('/api/feeds/:id/platforms', requireAuth, (req, res) => {
-  const feedId = parseInt(req.params.id);
-  const fps = db.get('feed_platforms').filter({ feed_id: feedId }).value();
-  const platforms = fps.map(fp => db.get('platforms').find({ id: fp.platform_id }).value()).filter(Boolean);
-  res.json(platforms);
-});
-
-app.put('/api/feeds/:id', requireAuth, (req, res) => {
-  const id = parseInt(req.params.id);
-  const feed = db.get('feeds').find({ id }).value();
-  if (!feed) return res.status(404).json({ error: 'Feed not found' });
-
-  const updates = {};
-  const fields = ['name','check_interval','max_items','max_per_day','trickle','prefix','suffix','post_immediately','active','filter_all','filter_any','filter_ignore'];
-  fields.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
-
-  db.get('feeds').find({ id }).assign(updates).write();
-  res.json(db.get('feeds').find({ id }).value());
-});
-
-app.delete('/api/feeds/:id', requireAuth, (req, res) => {
-  const id = parseInt(req.params.id);
-  db.get('feeds').remove({ id }).write();
-  db.get('feed_platforms').remove({ feed_id: id }).write();
-  res.json({ success: true });
-});
-
-app.post('/api/feeds/:id/check', requireAuth, async (req, res) => {
-  const feed = db.get('feeds').find({ id: parseInt(req.params.id) }).value();
-  if (!feed) return res.status(404).json({ error: 'Feed not found' });
-  try {
-    await checkFeed(feed);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── Feed <-> Platform links ───────────────────────────────────────────────────
-
-app.post('/api/feeds/:id/platforms', requireAuth, (req, res) => {
-  const feed_id = parseInt(req.params.id);
-  const { platform_id } = req.body;
-  const exists = db.get('feed_platforms').find({ feed_id, platform_id: parseInt(platform_id) }).value();
-  if (!exists) db.get('feed_platforms').push({ feed_id, platform_id: parseInt(platform_id) }).write();
-  res.json({ success: true });
-});
-
-app.delete('/api/feeds/:id/platforms/:pid', requireAuth, (req, res) => {
-  db.get('feed_platforms').remove({ feed_id: parseInt(req.params.id), platform_id: parseInt(req.params.pid) }).write();
-  res.json({ success: true });
-});
-
-// ── Platforms ─────────────────────────────────────────────────────────────────
-
-app.get('/api/platforms', requireAuth, (req, res) => {
-  res.json(db.get('platforms').value());
-});
-
-app.post('/api/platforms', requireAuth, (req, res) => {
-  const { name, type, config } = req.body;
-  if (!name || !type) return res.status(400).json({ error: 'Name and type required' });
-
-  const id = db.get('_nextId.platforms').value();
-  db.set('_nextId.platforms', id + 1).write();
-
-  const platform = {
-    id, name, type,
-    config: config ? JSON.stringify(config) : null,
-    active: 1,
-    created_at: Math.floor(Date.now() / 1000)
-  };
-  db.get('platforms').push(platform).write();
-  res.json(platform);
-});
-
-app.put('/api/platforms/:id', requireAuth, (req, res) => {
-  const id = parseInt(req.params.id);
-  const platform = db.get('platforms').find({ id }).value();
-  if (!platform) return res.status(404).json({ error: 'Platform not found' });
-
-  const { name, config, active } = req.body;
-  const updates = {};
-  if (name !== undefined) updates.name = name;
-  if (config !== undefined) updates.config = JSON.stringify(config);
-  if (active !== undefined) updates.active = active ? 1 : 0;
-
-  db.get('platforms').find({ id }).assign(updates).write();
-  res.json(db.get('platforms').find({ id }).value());
-});
-
-app.delete('/api/platforms/:id', requireAuth, (req, res) => {
-  const id = parseInt(req.params.id);
-  db.get('platforms').remove({ id }).write();
-  db.get('feed_platforms').remove({ platform_id: id }).write();
-  res.json({ success: true });
-});
-
-// ── History ───────────────────────────────────────────────────────────────────
-
-app.get('/api/history', requireAuth, (req, res) => {
-  const items = db.get('posted_items').value().slice().reverse().slice(0, 100).map(i => ({
-    ...i,
-    feed_name: db.get('feeds').find({ id: i.feed_id }).value()?.name || 'Unknown'
-  }));
-  res.json(items);
-});
-
-// ── Manual trigger ────────────────────────────────────────────────────────────
-
-app.post('/api/check-now', requireAuth, async (req, res) => {
-  try {
-    await checkAllFeeds();
-    res.json({ success: true, message: 'Feed check complete' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── Publish endpoint ──────────────────────────────────────────────────────────
-
-app.post('/api/publish', requireAuth, async (req, res) => {
+app.post('/api/publish', async (req, res) => {
+  const db = loadDB();
   const { content, platformIds } = req.body;
-  if (!content || !platformIds || !platformIds.length) {
-    return res.status(400).json({ error: 'Content and platformIds required' });
-  }
-  const { postItem } = require('./poster');
   const results = [];
   for (const pid of platformIds) {
-    const platform = db.get('platforms').find({ id: parseInt(pid) }).value();
+    const platform = db.platforms.find(p => p.id === pid);
     if (!platform) continue;
-    try {
-      await postItem(platform, { title: content, url: '', imageUrl: null }, { prefix: '', suffix: '' });
-      results.push({ platform: platform.type, status: 'posted' });
-    } catch (err) {
-      results.push({ platform: platform.type, status: 'failed', error: err.message });
-    }
+    const ok = await postToPlatform(platform.type, platform.config, content);
+    results.push({ platform: platform.type, status: ok ? 'posted' : 'failed' });
   }
   res.json({ results });
 });
 
-// ── Health check ──────────────────────────────────────────────────────────────
+async function checkFeed(feed) {
+  try {
+    const db = loadDB();
+    const parsed = await parser.parseURL(feed.url);
+    const platformIds = db.feedPlatforms.filter(fp => fp.feed_id === feed.id).map(fp => fp.platform_id);
+    const platforms = db.platforms.filter(p => platformIds.includes(p.id));
+    if (!db.seenItems) db.seenItems = [];
+    let newItems = 0;
+    for (const item of parsed.items.slice(0, feed.max_items)) {
+      const guid = item.guid || item.link || item.title;
+      const seen = db.seenItems.find(s => s.feed_id === feed.id && s.item_guid === guid);
+      if (seen) continue;
+      db.seenItems.push({ feed_id: feed.id, item_guid: guid });
+      if (!feed.post_immediately || platforms.length === 0) continue;
+      const title = item.title || 'New post';
+      const link = item.link || '';
+      let text = [feed.prefix, title, link, feed.suffix].filter(Boolean).join('\n');
+      if (text.length > 280) text = text.slice(0, 277) + '...';
+      for (const platform of platforms) {
+        const ok = await postToPlatform(platform.type, platform.config, text);
+        if (!db.history) db.history = [];
+        db.history.push({ id: nextId(db, 'history'), feed_id: feed.id, feed_name: feed.name, platform: platform.type, item_title: title, item_url: link, status: ok ? 'posted' : 'failed', posted_at: Math.floor(Date.now()/1000) });
+      }
+      newItems++;
+    }
+    const feedIdx = db.feeds.findIndex(f => f.id === feed.id);
+    if (feedIdx !== -1) db.feeds[feedIdx].last_checked = Math.floor(Date.now()/1000);
+    saveDB(db);
+    console.log(`[${feed.name}] Checked. ${newItems} new item(s).`);
+  } catch(e) {
+    console.error(`[${feed.name}] Error:`, e.message);
+  }
+}
 
-// -- OpenAI endpoints ----------------------------------------------------------
+async function postToPlatform(type, config, text) {
+  try {
+    if (type === 'discord') {
+      const res = await fetch(config.webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text }),
+      });
+      return res.ok;
+    }
+    if (type === 'bluesky') {
+      const loginRes = await fetch('https://bsky.social/xrpc/com.atproto.server.createSession', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: config.handle, password: config.password }),
+      });
+      const session = await loginRes.json();
+      if (!session.accessJwt) return false;
+      const postRes = await fetch('https://bsky.social/xrpc/com.atproto.repo.createRecord', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.accessJwt}` },
+        body: JSON.stringify({
+          repo: session.did,
+          collection: 'app.bsky.feed.post',
+          record: { text, createdAt: new Date().toISOString(), '$type': 'app.bsky.feed.post' },
+        }),
+      });
+      return postRes.ok;
+    }
+    return false;
+  } catch(e) {
+    console.error(`[${type}] Post error:`, e.message);
+    return false;
+  }
+}
 
-app.post('/api/generate-post', requireAuth, async (req, res) => {
-    const { topic, tone, openaiApiKey } = req.body;
-    const apiKey = openaiApiKey || process.env.OPENAI_API_KEY;
-    if (!apiKey) return res.status(400).json({ error: 'No OpenAI API key' });
-    if (!topic) return res.status(400).json({ error: 'Topic required' });
-    try {
-          const r = await fetch('https://api.openai.com/v1/chat/completions', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-                  body: JSON.stringify({
-                            model: 'gpt-4o-mini', max_tokens: 300,
-                            messages: [
-                              { role: 'system', content: 'Write an engaging social media post. Tone: ' + (tone || 'Professional') + '. Keep under 280 chars. Add 3-5 hashtags at the end.' },
-                              { role: 'user', content: 'Write a post about: ' + topic }
-                                      ]
-                  })
-          });
-          const d = await r.json();
-          if (!r.ok) throw new Error(d.error && d.error.message || 'OpenAI error');
-          res.json({ post: d.choices[0].message.content });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+cron.schedule('* * * * *', async () => {
+  const db = loadDB();
+  const now = Math.floor(Date.now() / 1000);
+  for (const feed of db.feeds.filter(f => f.active)) {
+    const lastChecked = feed.last_checked || 0;
+    const intervalSecs = (feed.check_interval || 30) * 60;
+    if (now - lastChecked >= intervalSecs) await checkFeed(feed);
+  }
 });
 
-app.post('/api/generate-hashtags', requireAuth, async (req, res) => {
-    const { title, content, openaiApiKey } = req.body;
-    const apiKey = openaiApiKey || process.env.OPENAI_API_KEY;
-    if (!apiKey) return res.status(400).json({ error: 'No OpenAI API key' });
-    try {
-          const r = await fetch('https://api.openai.com/v1/chat/completions', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-                  body: JSON.stringify({
-                            model: 'gpt-4o-mini', max_tokens: 100,
-                            messages: [
-                              { role: 'system', content: 'Generate 5 relevant hashtags. Return only hashtags separated by spaces, nothing else.' },
-                              { role: 'user', content: 'Content: ' + (content || title) }
-                                      ]
-                  })
-          });
-          const d = await r.json();
-          if (!r.ok) throw new Error(d.error && d.error.message || 'OpenAI error');
-          res.json({ hashtags: d.choices[0].message.content.trim() });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
-});
-
-// ── Catch-all -> index.html ───────────────────────────────────────────────────
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// ── Cron: check feeds every 15 minutes ───────────────────────────────────────
-
-cron.schedule('*/15 * * * *', async () => {
-  console.log('[CRON] Running feed check...');
-  try { await checkAllFeeds(); }
-  catch (err) { console.error('[CRON] Error:', err.message); }
-});
-
-// ── Start ─────────────────────────────────────────────────────────────────────
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[SERVER] SocialFlow running on port ${PORT}`);
-  console.log(`[SERVER] Environment: ${process.env.NODE_ENV || 'development'}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`\n✅ SocialFlow running at http://localhost:${PORT}\n`);
 });
 
 module.exports = app;
