@@ -62,6 +62,78 @@ function showPage(page) {
 }
 
 // ── Discover ──────────────────────────────────────────────────────────────────
+async function findFeedFromUrl() {
+  const url = document.getElementById('find-feed-url').value.trim();
+  if (!url) { alert('Enter a website URL first.'); return; }
+
+  const btn = event.target;
+  btn.textContent = 'Searching…';
+  btn.disabled = true;
+
+  const resultsEl = document.getElementById('find-feed-results');
+  resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Searching for RSS feeds…</div>';
+
+  try {
+    const res = await fetch('/api/find-feed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    const data = await res.json();
+
+    if (!data.feeds || data.feeds.length === 0) {
+      resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">No RSS feeds found for this website.</div>';
+    } else {
+      resultsEl.innerHTML = data.feeds.map((feed, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-top:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text);">${escHtml(feed.title)}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${escHtml(feed.url)}</div>
+          </div>
+          <button class="btn btn-primary" id="url-add-btn-${i}" onclick="addFoundFeed(${i}, '${escHtml(feed.title)}', '${escHtml(feed.url)}')">+ Add</button>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">Error searching. Try again.</div>';
+  }
+
+  btn.textContent = 'Find RSS';
+  btn.disabled = false;
+}
+
+async function addFoundFeed(index, title, url) {
+  const btn = document.getElementById(`url-add-btn-${index}`);
+  btn.textContent = 'Adding…';
+  btn.disabled = true;
+
+  const platforms = await fetch('/api/platforms').then(r => r.json());
+
+  const res = await fetch('/api/feeds', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: title, url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    btn.textContent = data.error?.includes('already') ? '✓ Already added' : 'Failed';
+    btn.className = 'btn btn-ghost';
+    return;
+  }
+
+  for (const p of platforms) {
+    await fetch(`/api/feeds/${data.id}/platforms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform_id: p.id }),
+    });
+  }
+
+  btn.textContent = '✓ Added!';
+  btn.className = 'btn btn-success';
+}
 function filterCategory(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
