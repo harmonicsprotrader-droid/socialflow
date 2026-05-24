@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 const cron = require('node-cron');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 const parser = new Parser();
@@ -156,6 +157,69 @@ app.post('/api/publish', async (req, res) => {
   res.json({ results });
 });
 
+// ── Twitter OAuth 1.0a ────────────────────────────────────────────────────────
+function twitterAuth(method, url, params, keys) {
+  const oauthParams = {
+    oauth_consumer_key: keys.apiKey,
+    oauth_nonce: crypto.randomBytes(16).toString('hex'),
+    oauth_signature_method: 'HMAC-SHA1',
+    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
+    oauth_token: keys.accessToken,
+    oauth_version: '1.0',
+  };
+
+  const allParams = { ...params, ...oauthParams };
+  const sortedParams = Object.keys(allParams).sort().map(k =>
+    `${encodeURIComponent(k)}=${encodeURIComponent(allParams[k])}`
+  ).join('&');
+
+  const baseString = `${method}&${encodeURIComponent(url)}&${encodeURIComponent(sortedParams)}`;
+  const signingKey = `${encodeURIComponent(keys.apiSecret)}&${encodeURIComponent(keys.accessTokenSecret)}`;
+  const signature = crypto.createHmac('sha1', signingKey).update(baseString).digest('base64');
+
+  oauthParams.oauth_signature = signature;
+
+  const authHeader = 'OAuth ' + Object.keys(oauthParams).sort().map(k =>
+    `${encodeURIComponent(k)}="${encodeURIComponent(oauthParams[k])}"`
+  ).join(', ');
+
+  return authHeader;
+}
+
+async function postToTwitter(text) {
+  const keys = {
+    apiKey: process.env.TWITTER_API_KEY,
+    apiSecret: process.env.TWITTER_API_SECRET,
+    accessToken: process.env.TWITTER_ACCESS_TOKEN,
+    accessTokenSecret: process.env.TWITTER_ACCESS_SECRET,
+  };
+
+  if (!keys.apiKey || !keys.apiSecret || !keys.accessToken || !keys.accessTokenSecret) {
+    console.error('[Twitter] Missing API keys in environment variables');
+    return false;
+  }
+
+  const url = 'https://api.twitter.com/2/tweets';
+  const body = JSON.stringify({ text });
+  const authHeader = twitterAuth('POST', url, {}, keys);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': authHeader,
+      'Content-Type': 'application/json',
+    },
+    body,
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('[Twitter] Error:', err);
+  }
+  return res.ok;
+}
+
+// ── Core: Check a feed ────────────────────────────────────────────────────────
 async function checkFeed(feed) {
   try {
     const db = loadDB();
@@ -200,6 +264,9 @@ async function postToPlatform(type, config, text) {
       });
       return res.ok;
     }
+    if (type === 'twitter') {
+      return await postToTwitter(text);
+    }
     if (type === 'bluesky') {
       const loginRes = await fetch('https://bsky.social/xrpc/com.atproto.server.createSession', {
         method: 'POST',
@@ -240,5 +307,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n✅ SocialFlow running at http://localhost:${PORT}\n`);
 });
-
-module.exports = app;
