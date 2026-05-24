@@ -25,6 +25,65 @@ async function initDB() {
   console.log('DB ready');
 }
 
+// ── Find RSS from URL ─────────────────────────────────────────────────────────
+app.post('/api/find-feed', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  const candidates = [];
+
+  try {
+    // First try the URL directly as a feed
+    try {
+      await parser.parseURL(url);
+      candidates.push(url);
+    } catch(e) {}
+
+    if (candidates.length === 0) {
+      // Fetch the page HTML and look for RSS links
+      const pageRes = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      const html = await pageRes.text();
+
+      // Find feed links in HTML
+      const feedRegex = /<link[^>]+type=["'](application\/rss\+xml|application\/atom\+xml)["'][^>]*href=["']([^"']+)["']/gi;
+      let match;
+      while ((match = feedRegex.exec(html)) !== null) {
+        candidates.push(match[2]);
+      }
+
+      // Also try common feed paths
+      const base = new URL(url);
+      const commonPaths = ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/feed/rss', '/feeds/posts/default'];
+      for (const p of commonPaths) {
+        try {
+          const testUrl = base.origin + p;
+          await parser.parseURL(testUrl);
+          candidates.push(testUrl);
+          break;
+        } catch(e) {}
+      }
+    }
+
+    if (candidates.length === 0) return res.json({ feeds: [] });
+
+    // Validate and get feed info
+    const feeds = [];
+    for (const feedUrl of candidates.slice(0, 5)) {
+      try {
+        const fullUrl = feedUrl.startsWith('http') ? feedUrl : new URL(feedUrl, url).href;
+        const parsed = await parser.parseURL(fullUrl);
+        feeds.push({ title: parsed.title || feedUrl, url: fullUrl, description: parsed.description || '' });
+      } catch(e) {}
+    }
+
+    res.json({ feeds });
+  } catch(e) {
+    console.error('[find-feed]', e.message);
+    res.json({ feeds: [] });
+  }
+});
+
+// ── Platforms API ─────────────────────────────────────────────────────────────
 app.get('/api/platforms', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM platforms');
   res.json(rows.map(r => ({ ...r, config: JSON.parse(r.config) })));
