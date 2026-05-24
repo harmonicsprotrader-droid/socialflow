@@ -208,6 +208,11 @@
     </div>
     <div class="card">
       <div class="card-title">Browse by Category</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+  <input type="text" id="topic-search" placeholder="Search by topic e.g. bitcoin, forex, AI..." 
+    oninput="renderDiscoverGrid()"
+    style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
+</div>
       <div class="category-tabs">
         <button class="category-tab active" onclick="filterCategory('all', this)">All</button>
         <button class="category-tab" onclick="filterCategory('crypto', this)">🪙 Crypto</button>
