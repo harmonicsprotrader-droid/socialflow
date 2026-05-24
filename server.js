@@ -25,9 +25,33 @@ async function initDB() {
   console.log('DB ready');
 }
 // ── Explore: Search RSS feeds by topic ───────────────────────────────────────
-app.post('/api/explore', async (req, res) => {
-  const { topic } = req.body;
-  if (!topic) return res.status(400).json({ error: 'Topic required' });
+app.post('/api/find-feed', async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  const isTopic = !url.startsWith('http');
+  if (isTopic) {
+    try {
+      const query = encodeURIComponent(`${url} RSS feed`);
+      const searchRes = await fetch(`https://www.google.com/search?q=${query}&num=10`, {
+        headers: { 'User-Agent': 'Mozilla/5.0' }
+      });
+      const html = await searchRes.text();
+      const urlRegex = /https?:\/\/[^\s"<>]+(?:rss|feed|atom)[^\s"<>]*/gi;
+      const urls = [...new Set(html.match(urlRegex) || [])].slice(0, 10);
+      const feeds = [];
+      for (const feedUrl of urls) {
+        try {
+          const parsed = await parser.parseURL(feedUrl);
+          feeds.push({ title: parsed.title || feedUrl, url: feedUrl, description: parsed.description || '' });
+          if (feeds.length >= 5) break;
+        } catch(e) {}
+      }
+      return res.json({ feeds });
+    } catch(e) {
+      return res.json({ feeds: [] });
+    }
+  }
 
   try {
     // Search Google for RSS feeds on this topic
