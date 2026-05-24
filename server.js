@@ -24,7 +24,43 @@ async function initDB() {
   `);
   console.log('DB ready');
 }
+// ── Explore: Search RSS feeds by topic ───────────────────────────────────────
+app.post('/api/explore', async (req, res) => {
+  const { topic } = req.body;
+  if (!topic) return res.status(400).json({ error: 'Topic required' });
 
+  try {
+    // Search Google for RSS feeds on this topic
+    const query = encodeURIComponent(`${topic} RSS feed site:feedburner.com OR inurl:rss OR inurl:feed`);
+    const searchRes = await fetch(`https://www.google.com/search?q=${query}&num=10`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+    });
+    const html = await searchRes.text();
+
+    // Extract URLs from search results
+    const urlRegex = /https?:\/\/[^\s"<>]+(?:rss|feed|atom)[^\s"<>]*/gi;
+    const urls = [...new Set(html.match(urlRegex) || [])].slice(0, 10);
+
+    // Validate each URL as a real RSS feed
+    const feeds = [];
+    for (const url of urls) {
+      try {
+        const parsed = await parser.parseURL(url);
+        feeds.push({
+          title: parsed.title || url,
+          url,
+          description: parsed.description || '',
+        });
+        if (feeds.length >= 5) break;
+      } catch(e) {}
+    }
+
+    res.json({ feeds });
+  } catch(e) {
+    console.error('[explore]', e.message);
+    res.json({ feeds: [] });
+  }
+});
 // ── Find RSS from URL ─────────────────────────────────────────────────────────
 app.post('/api/find-feed', async (req, res) => {
   const { url } = req.body;
