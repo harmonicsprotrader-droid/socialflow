@@ -138,10 +138,44 @@ function filterCategory(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  renderDiscoverGrid();
+  renderDiscoverGrid(document.getElementById('topic-search')?.value || '');
 }
 
-function renderDiscoverGrid() {
+function renderDiscoverGrid(searchTerm = '') {
+  const grid = document.getElementById('discover-grid');
+  let filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
+
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(f =>
+      f.name.toLowerCase().includes(term) ||
+      f.desc.toLowerCase().includes(term) ||
+      f.category.toLowerCase().includes(term)
+    );
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No feeds found for that topic. Try the URL finder above!</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map((feed, i) => `
+    <div class="discover-card">
+      <div class="discover-card-top">
+        <div class="discover-card-icon">${feed.icon}</div>
+        <div>
+          <div class="discover-card-name">${feed.name}</div>
+          <div class="discover-tag">${feed.category}</div>
+        </div>
+      </div>
+      <div class="discover-card-desc">${feed.desc}</div>
+      <div class="discover-card-url">${feed.url}</div>
+      <div class="discover-card-footer">
+        <button class="btn btn-primary" id="add-btn-${i}" onclick="addDiscoverFeed(${i})">+ Add Feed</button>
+      </div>
+    </div>
+  `).join('');
+}
   const grid = document.getElementById('discover-grid');
   const filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
 
