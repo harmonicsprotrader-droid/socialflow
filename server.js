@@ -30,22 +30,21 @@ app.post('/api/find-feed', async (req, res) => {
   if (!url) return res.status(400).json({ error: 'URL required' });
 
   const isTopic = !url.startsWith('http');
-  if (isTopic) {
+if (isTopic) {
     try {
-      const query = encodeURIComponent(`${url} RSS feed`);
-      const searchRes = await fetch(`https://www.google.com/search?q=${query}&num=10`, {
-        headers: { 'User-Agent': 'Mozilla/5.0' }
-      });
-      const html = await searchRes.text();
-      const urlRegex = /https?:\/\/[^\s"<>]+(?:rss|feed|atom)[^\s"<>]*/gi;
-      const urls = [...new Set(html.match(urlRegex) || [])].slice(0, 10);
-      const feeds = [];
-      for (const feedUrl of urls) {
-        try {
-          const parsed = await parser.parseURL(feedUrl);
-          feeds.push({ title: parsed.title || feedUrl, url: feedUrl, description: parsed.description || '' });
-          if (feeds.length >= 5) break;
-        } catch(e) {}
+      const query = encodeURIComponent(url);
+      const searchRes = await fetch(`https://cloud.feedly.com/v3/search/feeds?query=${query}&count=10`);
+      const data = await searchRes.json();
+      const feeds = (data.results || []).slice(0, 5).map(r => ({
+        title: r.title || r.feedId,
+        url: r.feedId.replace('feed/', ''),
+        description: r.description || '',
+      }));
+      return res.json({ feeds });
+    } catch(e) {
+      return res.json({ feeds: [] });
+    }
+  }
       }
       return res.json({ feeds });
     } catch(e) {
