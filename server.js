@@ -258,6 +258,53 @@ app.post('/api/publish', requireAuth, async (req, res) => {
 
 // ── Health check ──────────────────────────────────────────────────────────────
 
+// -- OpenAI endpoints ----------------------------------------------------------
+
+app.post('/api/generate-post', requireAuth, async (req, res) => {
+    const { topic, tone, openaiApiKey } = req.body;
+    const apiKey = openaiApiKey || process.env.OPENAI_API_KEY;
+    if (!apiKey) return res.status(400).json({ error: 'No OpenAI API key' });
+    if (!topic) return res.status(400).json({ error: 'Topic required' });
+    try {
+          const r = await fetch('https://api.openai.com/v1/chat/completions', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                  body: JSON.stringify({
+                            model: 'gpt-4o-mini', max_tokens: 300,
+                            messages: [
+                              { role: 'system', content: 'Write an engaging social media post. Tone: ' + (tone || 'Professional') + '. Keep under 280 chars. Add 3-5 hashtags at the end.' },
+                              { role: 'user', content: 'Write a post about: ' + topic }
+                                      ]
+                  })
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error && d.error.message || 'OpenAI error');
+          res.json({ post: d.choices[0].message.content });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/generate-hashtags', requireAuth, async (req, res) => {
+    const { title, content, openaiApiKey } = req.body;
+    const apiKey = openaiApiKey || process.env.OPENAI_API_KEY;
+    if (!apiKey) return res.status(400).json({ error: 'No OpenAI API key' });
+    try {
+          const r = await fetch('https://api.openai.com/v1/chat/completions', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                  body: JSON.stringify({
+                            model: 'gpt-4o-mini', max_tokens: 100,
+                            messages: [
+                              { role: 'system', content: 'Generate 5 relevant hashtags. Return only hashtags separated by spaces, nothing else.' },
+                              { role: 'user', content: 'Content: ' + (content || title) }
+                                      ]
+                  })
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error && d.error.message || 'OpenAI error');
+          res.json({ hashtags: d.choices[0].message.content.trim() });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
