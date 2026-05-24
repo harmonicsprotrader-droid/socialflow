@@ -6,7 +6,6 @@ const PLATFORM_ICONS = {
   youtube: '▶️', tumblr: '📝'
 };
 
-// ── Feed Directory ────────────────────────────────────────────────────────────
 const FEED_DIRECTORY = [
   // Crypto
   { name: 'CoinTelegraph', url: 'https://cointelegraph.com/rss', category: 'crypto', icon: '🪙', desc: 'Leading crypto news and analysis' },
@@ -15,28 +14,24 @@ const FEED_DIRECTORY = [
   { name: 'Bitcoin Magazine', url: 'https://bitcoinmagazine.com/.rss/full/', category: 'crypto', icon: '₿', desc: 'The original Bitcoin publication' },
   { name: 'The Block', url: 'https://www.theblock.co/rss.xml', category: 'crypto', icon: '🪙', desc: 'Crypto research and news' },
   { name: 'CryptoSlate', url: 'https://cryptoslate.com/feed/', category: 'crypto', icon: '🪙', desc: 'Crypto news and blockchain insights' },
-
   // Forex
   { name: 'ForexLive', url: 'https://www.forexlive.com/feed/news', category: 'forex', icon: '💱', desc: 'Real-time forex news and analysis' },
   { name: 'FXStreet', url: 'https://www.fxstreet.com/rss/news', category: 'forex', icon: '💱', desc: 'Forex news, rates and analysis' },
   { name: 'DailyFX', url: 'https://www.dailyfx.com/feeds/all', category: 'forex', icon: '💱', desc: 'Forex trading news and education' },
   { name: 'Investing.com Forex', url: 'https://www.investing.com/rss/news_285.rss', category: 'forex', icon: '💱', desc: 'Forex news from Investing.com' },
   { name: 'Nasdaq Forex', url: 'https://www.nasdaq.com/feed/rssoutbound?category=Currencies', category: 'forex', icon: '💱', desc: 'Currency news from Nasdaq' },
-
   // Stocks
   { name: 'MarketWatch', url: 'https://feeds.marketwatch.com/marketwatch/topstories/', category: 'stocks', icon: '📈', desc: 'Stock market news and analysis' },
   { name: 'Seeking Alpha', url: 'https://seekingalpha.com/feed.xml', category: 'stocks', icon: '📈', desc: 'Stock analysis and investing ideas' },
   { name: 'Yahoo Finance', url: 'https://finance.yahoo.com/news/rssindex', category: 'stocks', icon: '📈', desc: 'Financial news and stock data' },
   { name: 'Motley Fool', url: 'https://www.fool.com/feeds/index.aspx', category: 'stocks', icon: '📈', desc: 'Stock picks and investing advice' },
   { name: 'Benzinga', url: 'https://www.benzinga.com/feed', category: 'stocks', icon: '📈', desc: 'Stock market news and trading ideas' },
-
   // Tech
   { name: 'TechCrunch', url: 'https://techcrunch.com/feed/', category: 'tech', icon: '💻', desc: 'Startup and technology news' },
   { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml', category: 'tech', icon: '💻', desc: 'Technology, science and culture' },
   { name: 'Wired', url: 'https://www.wired.com/feed/rss', category: 'tech', icon: '💻', desc: 'Technology and its impact on culture' },
   { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index', category: 'tech', icon: '💻', desc: 'In-depth tech news and analysis' },
   { name: 'Hacker News', url: 'https://hnrss.org/frontpage', category: 'tech', icon: '💻', desc: 'Tech community top stories' },
-
   // News
   { name: 'BBC News', url: 'http://feeds.bbci.co.uk/news/rss.xml', category: 'news', icon: '📰', desc: 'Breaking news from the BBC' },
   { name: 'Reuters', url: 'https://feeds.reuters.com/reuters/topNews', category: 'news', icon: '📰', desc: 'World news from Reuters' },
@@ -62,6 +57,95 @@ function showPage(page) {
 }
 
 // ── Discover ──────────────────────────────────────────────────────────────────
+function filterCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderDiscoverGrid();
+}
+
+function searchTopics() {
+  renderDiscoverGrid();
+}
+
+function renderDiscoverGrid() {
+  const grid = document.getElementById('discover-grid');
+  const searchTerm = (document.getElementById('topic-search')?.value || '').toLowerCase();
+  let filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
+
+  if (searchTerm) {
+    filtered = filtered.filter(f =>
+      f.name.toLowerCase().includes(searchTerm) ||
+      f.desc.toLowerCase().includes(searchTerm) ||
+      f.category.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No feeds found. Try the URL finder above!</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map((feed, i) => `
+    <div class="discover-card">
+      <div class="discover-card-top">
+        <div class="discover-card-icon">${feed.icon}</div>
+        <div>
+          <div class="discover-card-name">${feed.name}</div>
+          <div class="discover-tag">${feed.category}</div>
+        </div>
+      </div>
+      <div class="discover-card-desc">${feed.desc}</div>
+      <div class="discover-card-url">${feed.url}</div>
+      <div class="discover-card-footer">
+        <button class="btn btn-primary" id="add-btn-${i}" onclick="addDiscoverFeed(${i})">+ Add Feed</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function addDiscoverFeed(index) {
+  const searchTerm = (document.getElementById('topic-search')?.value || '').toLowerCase();
+  let filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
+  if (searchTerm) {
+    filtered = filtered.filter(f =>
+      f.name.toLowerCase().includes(searchTerm) ||
+      f.desc.toLowerCase().includes(searchTerm) ||
+      f.category.toLowerCase().includes(searchTerm)
+    );
+  }
+  const feed = filtered[index];
+  const btn = document.getElementById(`add-btn-${index}`);
+  btn.textContent = 'Adding…';
+  btn.disabled = true;
+
+  const platforms = await fetch('/api/platforms').then(r => r.json());
+  const res = await fetch('/api/feeds', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: feed.name, url: feed.url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    btn.textContent = data.error?.includes('already') ? '✓ Already added' : 'Failed';
+    btn.className = 'btn btn-ghost';
+    return;
+  }
+
+  for (const p of platforms) {
+    await fetch(`/api/feeds/${data.id}/platforms`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform_id: p.id }),
+    });
+  }
+
+  btn.textContent = '✓ Added!';
+  btn.className = 'btn btn-success';
+}
+
+// ── URL Feed Finder ───────────────────────────────────────────────────────────
 async function findFeedFromUrl() {
   const url = document.getElementById('find-feed-url').value.trim();
   if (!url) { alert('Enter a website URL first.'); return; }
@@ -85,7 +169,7 @@ async function findFeedFromUrl() {
       resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">No RSS feeds found for this website.</div>';
     } else {
       resultsEl.innerHTML = data.feeds.map((feed, i) => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-top:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;">
           <div>
             <div style="font-size:13px;font-weight:500;color:var(--text);">${escHtml(feed.title)}</div>
             <div style="font-size:11px;color:var(--muted);margin-top:2px;">${escHtml(feed.url)}</div>
@@ -108,13 +192,11 @@ async function addFoundFeed(index, title, url) {
   btn.disabled = true;
 
   const platforms = await fetch('/api/platforms').then(r => r.json());
-
   const res = await fetch('/api/feeds', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: title, url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
   });
-
   const data = await res.json();
 
   if (!res.ok) {
@@ -123,104 +205,6 @@ async function addFoundFeed(index, title, url) {
     return;
   }
 
-  for (const p of platforms) {
-    await fetch(`/api/feeds/${data.id}/platforms`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ platform_id: p.id }),
-    });
-  }
-
-  btn.textContent = '✓ Added!';
-  btn.className = 'btn btn-success';
-}
-function filterCategory(cat, btn) {
-  currentCategory = cat;
-  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  renderDiscoverGrid(document.getElementById('topic-search')?.value || '');
-}
-
-function renderDiscoverGrid(searchTerm = '') {
-  const grid = document.getElementById('discover-grid');
-  let filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
-
-  if (searchTerm) {
-    const term = searchTerm.toLowerCase();
-    filtered = filtered.filter(f =>
-      f.name.toLowerCase().includes(term) ||
-      f.desc.toLowerCase().includes(term) ||
-      f.category.toLowerCase().includes(term)
-    );
-  }
-
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No feeds found for that topic. Try the URL finder above!</div>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map((feed, i) => `
-    <div class="discover-card">
-      <div class="discover-card-top">
-        <div class="discover-card-icon">${feed.icon}</div>
-        <div>
-          <div class="discover-card-name">${feed.name}</div>
-          <div class="discover-tag">${feed.category}</div>
-        </div>
-      </div>
-      <div class="discover-card-desc">${feed.desc}</div>
-      <div class="discover-card-url">${feed.url}</div>
-      <div class="discover-card-footer">
-        <button class="btn btn-primary" id="add-btn-${i}" onclick="addDiscoverFeed(${i})">+ Add Feed</button>
-      </div>
-    </div>
-  `).join('');
-}
-  const grid = document.getElementById('discover-grid');
-  const filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
-
-  grid.innerHTML = filtered.map((feed, i) => `
-    <div class="discover-card">
-      <div class="discover-card-top">
-        <div class="discover-card-icon">${feed.icon}</div>
-        <div>
-          <div class="discover-card-name">${feed.name}</div>
-          <div class="discover-tag">${feed.category}</div>
-        </div>
-      </div>
-      <div class="discover-card-desc">${feed.desc}</div>
-      <div class="discover-card-url">${feed.url}</div>
-      <div class="discover-card-footer">
-        <button class="btn btn-primary" id="add-btn-${i}" onclick="addDiscoverFeed(${i})">+ Add Feed</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function addDiscoverFeed(index) {
-  const filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
-  const feed = filtered[index];
-  const btn = document.getElementById(`add-btn-${index}`);
-  btn.textContent = 'Adding…';
-  btn.disabled = true;
-
-  const platforms = await fetch('/api/platforms').then(r => r.json());
-
-  const res = await fetch('/api/feeds', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: feed.name, url: feed.url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    btn.textContent = data.error?.includes('already') ? '✓ Already added' : 'Failed';
-    btn.className = 'btn btn-ghost';
-    return;
-  }
-
-  // Connect all platforms by default
   for (const p of platforms) {
     await fetch(`/api/feeds/${data.id}/platforms`, {
       method: 'POST',
@@ -266,7 +250,7 @@ async function loadFeeds() {
     const feeds = await fetch('/api/feeds').then(r => r.json());
     const el = document.getElementById('feeds-list');
     if (feeds.length === 0) {
-      el.innerHTML = '<div class="empty-state">No feeds yet.<br>Click "Discover" to browse popular feeds!</div>';
+      el.innerHTML = '<div class="empty-state">No feeds yet.<br>Click "Discover Feeds" to get started!</div>';
       return;
     }
     el.innerHTML = feeds.map(f => `
@@ -408,7 +392,6 @@ function openAddPlatform() {
   document.getElementById('platform-type').value = '';
   document.getElementById('platform-name').value = '';
   document.getElementById('platform-extra-fields').innerHTML = '';
-  document.getElementById('platform-coming-soon').style.display = 'none';
   document.getElementById('save-platform-btn').disabled = false;
   document.getElementById('modal-platform').classList.add('open');
 }
@@ -416,9 +399,7 @@ function openAddPlatform() {
 function updatePlatformFields() {
   const type = document.getElementById('platform-type').value;
   const extra = document.getElementById('platform-extra-fields');
-  const coming = document.getElementById('platform-coming-soon');
   const saveBtn = document.getElementById('save-platform-btn');
-  coming.style.display = 'none';
   saveBtn.disabled = false;
   extra.innerHTML = '';
   if (type === 'discord') {
