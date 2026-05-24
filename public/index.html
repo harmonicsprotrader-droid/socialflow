@@ -189,7 +189,16 @@
     <div class="page-header">
       <div class="page-title">Discover Feeds</div>
       <div class="page-subtitle">Browse and add popular RSS feeds by category</div>
-    </div>
+    </div><!-- URL Feed Finder -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-title">🔍 Find Feed from any Website</div>
+  <div style="display:flex;gap:10px;">
+    <input type="url" id="find-feed-url" placeholder="https://anywebsite.com" 
+      style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;" />
+    <button class="btn btn-primary" onclick="findFeedFromUrl()">Find RSS</button>
+  </div>
+  <div id="find-feed-results" style="margin-top:12px;"></div>
+</div>
     <div class="category-tabs">
       <button class="category-tab active" onclick="filterCategory('all', this)">All</button>
       <button class="category-tab" onclick="filterCategory('crypto', this)">🪙 Crypto</button>
