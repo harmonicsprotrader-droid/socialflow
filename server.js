@@ -50,6 +50,93 @@ app.post('/api/generate-post', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+// ── Instagram OAuth ───────────────────────────────────────────────────────────
+app.get('/auth/instagram', (req, res) => {
+  const appId = process.env.META_APP_ID;
+  const redirectUri = encodeURIComponent('https://socialflow-production.up.railway.app/auth/instagram/callback');
+  const scope = 'instagram_business_basic,instagram_content_publish';
+  res.redirect(`https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${appId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`);
+});
+
+app.get('/auth/instagram/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.send('Error: no code received');
+
+  try {
+    const tokenRes = await fetch('https://api.instagram.com/oauth/access_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.META_APP_ID,
+        client_secret: process.env.META_APP_SECRET,
+        grant_type: 'authorization_code',
+        redirect_uri: 'https://socialflow-production.up.railway.app/auth/instagram/callback',
+        code,
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) return res.send('Error getting token: ' + JSON.stringify(tokenData));
+
+    // Get user info
+    const userRes = await fetch(`https://graph.instagram.com/v21.0/me?fields=id,username&access_token=${tokenData.access_token}`);
+    const user = await userRes.json();
+
+    // Save platform
+    await pool.query('INSERT INTO platforms (name, type, config) VALUES ($1, $2, $3)', [
+      user.username || 'Instagram',
+      'instagram',
+      JSON.stringify({ accessToken: tokenData.access_token, userId: tokenData.user_id }),
+    ]);
+
+    res.redirect('https://socialflow-production.up.railway.app/?connected=instagram');
+  } catch(e) {
+    res.send('Error: ' + e.message);
+  }
+});
+
+// ── Threads OAuth ─────────────────────────────────────────────────────────────
+app.get('/auth/threads', (req, res) => {
+  const appId = process.env.META_APP_ID;
+  const redirectUri = encodeURIComponent('https://socialflow-production.up.railway.app/auth/threads/callback');
+  const scope = 'threads_basic,threads_content_publish';
+  res.redirect(`https://threads.net/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`);
+});
+
+app.get('/auth/threads/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.send('Error: no code received');
+
+  try {
+    const tokenRes = await fetch('https://graph.threads.net/oauth/access_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.META_APP_ID,
+        client_secret: process.env.META_APP_SECRET,
+        grant_type: 'authorization_code',
+        redirect_uri: 'https://socialflow-production.up.railway.app/auth/threads/callback',
+        code,
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) return res.send('Error getting token: ' + JSON.stringify(tokenData));
+
+    // Get user info
+    const userRes = await fetch(`https://graph.threads.net/v1.0/me?fields=id,username&access_token=${tokenData.access_token}`);
+    const user = await userRes.json();
+
+    // Save platform
+    await pool.query('INSERT INTO platforms (name, type, config) VALUES ($1, $2, $3)', [
+      user.username || 'Threads',
+      'threads',
+      JSON.stringify({ accessToken: tokenData.access_token, userId: tokenData.id }),
+    ]);
+
+    res.redirect('https://socialflow-production.up.railway.app/?connected=threads');
+  } catch(e) {
+    res.send('Error: ' + e.message);
+  }
+});
 // ── Unsplash Image Search ─────────────────────────────────────────────────────
 app.get('/api/unsplash', async (req, res) => {
   const { query } = req.query;
