@@ -169,7 +169,51 @@
 </nav>
 
 <main class="main">
+<!-- Compose -->
+  <div class="page" id="page-compose">
+    <div class="topbar">
+      <div class="page-header" style="margin-bottom:0">
+        <div class="page-title">Compose Post</div>
+        <div class="page-subtitle">Write and publish to your social accounts</div>
+      </div>
+    </div>
 
+    <!-- Platform Selector -->
+    <div class="card">
+      <div class="card-title">Select Accounts</div>
+      <div id="compose-accounts" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+    </div>
+
+    <!-- AI Helper -->
+    <div class="card">
+      <div class="card-title">✨ AI Helper</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <input type="text" id="ai-topic" placeholder="Enter a topic e.g. Bitcoin rally, Forex update..."
+          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
+        <select id="ai-tone" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;">
+          <option value="professional">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="excited">Excited</option>
+          <option value="informative">Informative</option>
+        </select>
+        <button class="btn btn-primary" onclick="generateAIPost()">✨ Generate</button>
+      </div>
+    </div>
+
+    <!-- Compose Area -->
+    <div class="card">
+      <div class="card-title">Your Post</div>
+      <textarea id="compose-text" placeholder="What would you like to share?"
+        style="width:100%;min-height:140px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;resize:vertical;line-height:1.6;"></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+        <span id="char-count" style="font-size:12px;color:var(--muted);">0 / 280</span>
+        <button class="btn btn-primary" onclick="publishPost()" style="padding:10px 28px;font-size:14px;">
+          ➤ Post Now
+        </button>
+      </div>
+      <div id="publish-results" style="margin-top:12px;"></div>
+    </div>
+  </div>
   <!-- Dashboard -->
   <div class="page active" id="page-dashboard">
     <div class="topbar">
