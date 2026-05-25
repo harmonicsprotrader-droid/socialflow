@@ -50,6 +50,19 @@ app.post('/api/generate-post', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+// ── Unsplash Image Search ─────────────────────────────────────────────────────
+app.get('/api/unsplash', async (req, res) => {
+  const { query } = req.query;
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key) return res.status(400).json({ error: 'No Unsplash key' });
+  try {
+    const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=${key}`);
+    const data = await r.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 // ── Find RSS from URL or Topic ────────────────────────────────────────────────
 app.post('/api/find-feed', async (req, res) => {
   const { url } = req.body;
