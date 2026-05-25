@@ -172,6 +172,49 @@ app.get('/auth/tiktok/callback', async (req, res) => {
     res.send('Error: ' + e.message);
   }
 });
+// ── YouTube OAuth ─────────────────────────────────────────────────────────────
+app.get('/auth/youtube', (req, res) => {
+  const clientId = process.env.YOUTUBE_CLIENT_ID;
+  const redirectUri = encodeURIComponent('https://socialflow-production.up.railway.app/auth/youtube/callback');
+  const scope = encodeURIComponent('https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube');
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline`);
+});
+
+app.get('/auth/youtube/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.send('Error: no code received');
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.YOUTUBE_CLIENT_ID,
+        client_secret: process.env.YOUTUBE_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: 'https://socialflow-production.up.railway.app/auth/youtube/callback',
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) return res.send('Error: ' + JSON.stringify(tokenData));
+
+    // Get channel info
+    const channelRes = await fetch('https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true', {
+      headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
+    });
+    const channelData = await channelRes.json();
+    const channelName = channelData.items?.[0]?.snippet?.title || 'YouTube';
+
+    await pool.query('INSERT INTO platforms (name, type, config) VALUES ($1, $2, $3)', [
+      channelName,
+      'youtube',
+      JSON.stringify({ accessToken: tokenData.access_token, refreshToken: tokenData.refresh_token }),
+    ]);
+    res.redirect('https://socialflow-production.up.railway.app/?connected=youtube');
+  } catch(e) {
+    res.send('Error: ' + e.message);
+  }
+});
 // ── Unsplash Image Search ─────────────────────────────────────────────────────
 app.get('/api/unsplash', async (req, res) => {
   const { query } = req.query;
