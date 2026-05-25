@@ -558,7 +558,7 @@ async function loadPlatforms() {
     }
     el.innerHTML = platforms.map(p => `
       <div class="platform-card">
-        <div class="platform-icon">${PLATFORM_ICONS[p.type] || '🌐'}</div>
+       <img src="https://cdn.simpleicons.org/${p.type === 'twitter' ? 'x' : p.type}" width="32" height="32" style="border-radius:6px;" onerror="this.style.display='none'" />
         <div><div class="platform-name">${escHtml(p.name)}</div><div class="platform-type">${p.type}</div></div>
         <button class="btn btn-danger" onclick="deletePlatform(${p.id})">✕</button>
       </div>
