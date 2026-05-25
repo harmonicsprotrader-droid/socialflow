@@ -418,6 +418,12 @@ async function postToPlatform(type, config, text) {
       }).then(r => r.json());
       return !!publish.id;
     }
+    if (type === 'tiktok') {
+      // TikTok posting requires video content - text only not supported
+      console.log('[TikTok] Post queued - requires video content');
+      return false;
+    }
+    
     if (type === 'threads') {
       const { accessToken, userId } = config;
       const container = await fetch(`https://graph.threads.net/v1.0/${userId}/threads`, {
