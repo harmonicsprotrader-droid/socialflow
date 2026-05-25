@@ -1,9 +1,15 @@
 // ── SocialFlow Frontend ───────────────────────────────────────────────────────
 
 const PLATFORM_ICONS = {
-  bluesky: '🦋', twitter: '🐦', discord: '💬',
-  facebook: '📘', instagram: '📸', tiktok: '🎵',
-  youtube: '▶️', tumblr: '📝'
+  twitter: '𝕏',
+  discord: '<img src="https://cdn.simpleicons.org/discord/5865F2" width="20" height="20" />',
+  bluesky: '<img src="https://cdn.simpleicons.org/bluesky/0085ff" width="20" height="20" />',
+  facebook: '<img src="https://cdn.simpleicons.org/facebook/1877F2" width="20" height="20" />',
+  instagram: '<img src="https://cdn.simpleicons.org/instagram/E4405F" width="20" height="20" />',
+  tiktok: '<img src="https://cdn.simpleicons.org/tiktok/000000" width="20" height="20" />',
+  youtube: '<img src="https://cdn.simpleicons.org/youtube/FF0000" width="20" height="20" />',
+  tumblr: '<img src="https://cdn.simpleicons.org/tumblr/35465C" width="20" height="20" />',
+};
 };
 
 const FEED_DIRECTORY = [
