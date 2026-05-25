@@ -24,7 +24,32 @@ async function initDB() {
   `);
   console.log('DB ready');
 }
+// ── Generate Post with AI ─────────────────────────────────────────────────────
+app.post('/api/generate-post', async (req, res) => {
+  const { topic, tone } = req.body;
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (!openaiKey) return res.status(400).json({ error: 'No OpenAI API key set' });
 
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${openaiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: `You are a social media expert. Write a ${tone} social media post under 280 characters. No hashtags unless relevant. Just the post text, nothing else.` },
+          { role: 'user', content: `Write a post about: ${topic}` }
+        ],
+        max_tokens: 150,
+      }),
+    });
+    const data = await response.json();
+    const post = data.choices?.[0]?.message?.content?.trim();
+    res.json({ post });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 // ── Find RSS from URL or Topic ────────────────────────────────────────────────
 app.post('/api/find-feed', async (req, res) => {
   const { url } = req.body;
