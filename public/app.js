@@ -1,7 +1,22 @@
 // ── SocialFlow Frontend ───────────────────────────────────────────────────────
 
+function platformLogo(type, size) {
+  size = size || 28;
+  var logos = {
+    twitter: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="black"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+    discord: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.014.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>',
+    bluesky: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#0085ff"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.447.953 3.334 2.372 9.479 7.632 4.644 4.16-3.915.012-6.492-3.9-7.071a8.556 8.556 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.204-.659-.299-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8z"/></svg>',
+    facebook: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+    instagram: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="url(#ig)"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="25%" style="stop-color:#e6683c"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="75%" style="stop-color:#cc2366"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>',
+    tiktok: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="black"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+    youtube: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+    tumblr: '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#35465C"><path d="M14.563 24c-5.093 0-7.031-3.756-7.031-6.411V9.747H5.116V6.648c3.63-1.313 4.512-4.596 4.71-6.469C9.84.051 9.941 0 9.999 0h3.517v6.114h4.801v3.633h-4.82v7.47c.016 1.001.375 2.371 2.207 2.371h.09c.631-.02 1.486-.205 1.936-.419l1.156 3.425c-.436.636-2.4 1.374-4.304 1.406z"/></svg>',
+  };
+  return logos[type] || '<span style="font-size:' + size + 'px">🌐</span>';
+}
+
 const PLATFORM_ICONS = {
-  twitter: '🐦',
+  twitter: '𝕏',
   discord: '💬',
   bluesky: '🦋',
   facebook: '📘',
@@ -46,9 +61,9 @@ let selectedImage = null;
 // ── Page Navigation ───────────────────────────────────────────────────────────
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const el = document.getElementById('page-' + page);
+  var el = document.getElementById('page-' + page);
   if (el) el.classList.add('active');
-  document.querySelectorAll('.sidebar-btn').forEach(b => {
+  document.querySelectorAll('.sidebar-btn').forEach(function(b) {
     b.classList.toggle('active', b.dataset.page === page);
   });
   if (page === 'compose')   loadCompose();
@@ -61,8 +76,8 @@ function showPage(page) {
 
 // ── Compose ───────────────────────────────────────────────────────────────────
 async function loadCompose() {
-  const platforms = await fetch('/api/platforms').then(r => r.json());
-  const el = document.getElementById('compose-accounts');
+  var platforms = await fetch('/api/platforms').then(function(r) { return r.json(); });
+  var el = document.getElementById('compose-accounts');
   if (!el) return;
 
   if (platforms.length === 0) {
@@ -70,23 +85,23 @@ async function loadCompose() {
     return;
   }
 
-  selectedPlatformIds = new Set(platforms.map(p => p.id));
+  selectedPlatformIds = new Set(platforms.map(function(p) { return p.id; }));
 
-  el.innerHTML = platforms.map(p => `
-    <div class="compose-account" id="compose-acct-${p.id}" onclick="toggleComposeAccount(${p.id})"
-      style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:2px solid var(--accent);background:#e8f0fd;min-width:70px;">
-      <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">
-        ${<img src="https://cdn.simpleicons.org/${p.type === 'twitter' ? 'x' : p.type}" width="24" height="24" onerror="this.style.display='none'" />'}
-      </div>
-      <div style="font-size:11px;font-weight:500;color:var(--text);text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(p.name)}</div>
-    </div>
-  `).join('');
+  el.innerHTML = platforms.map(function(p) {
+    return '<div class="compose-account" id="compose-acct-' + p.id + '" onclick="toggleComposeAccount(' + p.id + ')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:2px solid var(--accent);background:#e8f0fd;min-width:70px;">' +
+      '<div style="width:44px;height:44px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;">' +
+      platformLogo(p.type, 28) +
+      '</div>' +
+      '<div style="font-size:11px;font-weight:500;color:var(--text);text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtml(p.name) + '</div>' +
+      '</div>';
+  }).join('');
 
-  document.getElementById('compose-text').addEventListener('input', updateCharCount);
+  var composeText = document.getElementById('compose-text');
+  if (composeText) composeText.addEventListener('input', updateCharCount);
 }
 
 function toggleComposeAccount(id) {
-  const el = document.getElementById('compose-acct-' + id);
+  var el = document.getElementById('compose-acct-' + id);
   if (selectedPlatformIds.has(id)) {
     selectedPlatformIds.delete(id);
     el.style.borderColor = 'var(--border)';
@@ -99,29 +114,29 @@ function toggleComposeAccount(id) {
 }
 
 function updateCharCount() {
-  const text = document.getElementById('compose-text').value;
-  const el = document.getElementById('char-count');
+  var text = document.getElementById('compose-text').value;
+  var el = document.getElementById('char-count');
   if (!el) return;
   el.textContent = text.length + ' / 280';
   el.style.color = text.length > 280 ? 'var(--red)' : 'var(--muted)';
 }
 
 async function generateAIPost() {
-  const topic = document.getElementById('ai-topic').value.trim();
-  const tone = document.getElementById('ai-tone').value;
+  var topic = document.getElementById('ai-topic').value.trim();
+  var tone = document.getElementById('ai-tone').value;
   if (!topic) { alert('Enter a topic first.'); return; }
 
-  const btn = event.target;
+  var btn = event.target;
   btn.textContent = 'Generating…';
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/generate-post', {
+    var res = await fetch('/api/generate-post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic, tone }),
+      body: JSON.stringify({ topic: topic, tone: tone }),
     });
-    const data = await res.json();
+    var data = await res.json();
     if (data.post) {
       document.getElementById('compose-text').value = data.post;
       updateCharCount();
@@ -138,7 +153,7 @@ async function generateAIPost() {
 
 // ── Image Functions ───────────────────────────────────────────────────────────
 function toggleImageMenu() {
-  const menu = document.getElementById('image-menu');
+  var menu = document.getElementById('image-menu');
   menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
 }
 
@@ -148,10 +163,10 @@ function triggerImageUpload() {
 }
 
 function handleImageUpload(event) {
-  const file = event.target.files[0];
+  var file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  var reader = new FileReader();
+  reader.onload = function(e) {
     selectedImage = e.target.result;
     document.getElementById('image-preview-img').src = selectedImage;
     document.getElementById('image-preview').style.display = 'block';
@@ -168,28 +183,26 @@ function removeImage() {
 
 function openUnsplash() {
   document.getElementById('image-menu').style.display = 'none';
-  const panel = document.getElementById('unsplash-panel');
+  var panel = document.getElementById('unsplash-panel');
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
 async function searchUnsplash() {
-  const query = document.getElementById('unsplash-query').value.trim();
+  var query = document.getElementById('unsplash-query').value.trim();
   if (!query) return;
-  const resultsEl = document.getElementById('unsplash-results');
+  var resultsEl = document.getElementById('unsplash-results');
   resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Searching…</div>';
 
   try {
-    const res = await fetch('/api/unsplash?query=' + encodeURIComponent(query));
-    const data = await res.json();
+    var res = await fetch('/api/unsplash?query=' + encodeURIComponent(query));
+    var data = await res.json();
     if (!data.results || !data.results.length) {
       resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No images found.</div>';
       return;
     }
-    resultsEl.innerHTML = data.results.map((img, i) => `
-      <img src="${img.urls.small}" onclick="selectUnsplashImage('${img.urls.regular}')"
-        style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;"
-        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'" />
-    `).join('');
+    resultsEl.innerHTML = data.results.map(function(img) {
+      return '<img src="' + img.urls.small + '" onclick="selectUnsplashImage(\'' + img.urls.regular + '\')" style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'transparent\'" />';
+    }).join('');
   } catch(e) {
     resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">Error searching.</div>';
   }
@@ -202,37 +215,37 @@ function selectUnsplashImage(url) {
   document.getElementById('unsplash-panel').style.display = 'none';
 }
 
-document.addEventListener('click', e => {
+document.addEventListener('click', function(e) {
   if (!e.target.closest('#image-menu') && !e.target.closest('[onclick="toggleImageMenu()"]')) {
-    const menu = document.getElementById('image-menu');
+    var menu = document.getElementById('image-menu');
     if (menu) menu.style.display = 'none';
   }
 });
 
 async function publishPost() {
-  const content = document.getElementById('compose-text').value.trim();
+  var content = document.getElementById('compose-text').value.trim();
   if (!content) { alert('Write something first.'); return; }
   if (selectedPlatformIds.size === 0) { alert('Select at least one platform.'); return; }
 
-  const btn = event.target;
+  var btn = event.target;
   btn.textContent = '⏳ Posting…';
   btn.disabled = true;
 
-  const res = await fetch('/api/publish', {
+  var res = await fetch('/api/publish', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, platformIds: Array.from(selectedPlatformIds) }),
+    body: JSON.stringify({ content: content, platformIds: Array.from(selectedPlatformIds) }),
   });
-  const data = await res.json();
+  var data = await res.json();
 
-  const resultsEl = document.getElementById('publish-results');
-  resultsEl.innerHTML = data.results.map(r => `
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;">
-      <span>${PLATFORM_ICONS[r.platform] || '🌐'}</span>
-      <span>${r.platform}</span>
-      <span class="${r.status === 'posted' ? 'badge-posted' : 'badge-failed'}">${r.status}</span>
-    </div>
-  `).join('');
+  var resultsEl = document.getElementById('publish-results');
+  resultsEl.innerHTML = data.results.map(function(r) {
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;">' +
+      platformLogo(r.platform, 20) +
+      '<span>' + r.platform + '</span>' +
+      '<span class="' + (r.status === 'posted' ? 'badge-posted' : 'badge-failed') + '">' + r.status + '</span>' +
+      '</div>';
+  }).join('');
 
   btn.textContent = '➤ Post Now';
   btn.disabled = false;
@@ -241,23 +254,22 @@ async function publishPost() {
 // ── Discover ──────────────────────────────────────────────────────────────────
 function filterCategory(cat, btn) {
   currentCategory = cat;
-  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.category-tab').forEach(function(t) { t.classList.remove('active'); });
   btn.classList.add('active');
   renderDiscoverGrid();
 }
 
 function renderDiscoverGrid() {
-  const grid = document.getElementById('discover-grid');
+  var grid = document.getElementById('discover-grid');
   if (!grid) return;
-  const searchTerm = (document.getElementById('topic-search') ? document.getElementById('topic-search').value : '').toLowerCase();
-  let filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
+  var topicEl = document.getElementById('topic-search');
+  var searchTerm = topicEl ? topicEl.value.toLowerCase() : '';
+  var filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(function(f) { return f.category === currentCategory; });
 
   if (searchTerm) {
-    filtered = filtered.filter(f =>
-      f.name.toLowerCase().includes(searchTerm) ||
-      f.desc.toLowerCase().includes(searchTerm) ||
-      f.category.toLowerCase().includes(searchTerm)
-    );
+    filtered = filtered.filter(function(f) {
+      return f.name.toLowerCase().includes(searchTerm) || f.desc.toLowerCase().includes(searchTerm) || f.category.toLowerCase().includes(searchTerm);
+    });
   }
 
   if (filtered.length === 0) {
@@ -265,46 +277,42 @@ function renderDiscoverGrid() {
     return;
   }
 
-  grid.innerHTML = filtered.map((feed, i) => `
-    <div class="discover-card">
-      <div class="discover-card-top">
-        <div class="discover-card-icon">${feed.icon}</div>
-        <div>
-          <div class="discover-card-name">${feed.name}</div>
-          <div class="discover-tag">${feed.category}</div>
-        </div>
-      </div>
-      <div class="discover-card-desc">${feed.desc}</div>
-      <div class="discover-card-url">${feed.url}</div>
-      <div class="discover-card-footer">
-        <button class="btn btn-primary" id="add-btn-${i}" onclick="addDiscoverFeed(${i})">+ Add Feed</button>
-      </div>
-    </div>
-  `).join('');
+  grid.innerHTML = filtered.map(function(feed, i) {
+    return '<div class="discover-card">' +
+      '<div class="discover-card-top">' +
+      '<div class="discover-card-icon">' + feed.icon + '</div>' +
+      '<div><div class="discover-card-name">' + feed.name + '</div>' +
+      '<div class="discover-tag">' + feed.category + '</div></div>' +
+      '</div>' +
+      '<div class="discover-card-desc">' + feed.desc + '</div>' +
+      '<div class="discover-card-url">' + feed.url + '</div>' +
+      '<div class="discover-card-footer">' +
+      '<button class="btn btn-primary" id="add-btn-' + i + '" onclick="addDiscoverFeed(' + i + ')">+ Add Feed</button>' +
+      '</div></div>';
+  }).join('');
 }
 
 async function addDiscoverFeed(index) {
-  const searchTerm = (document.getElementById('topic-search') ? document.getElementById('topic-search').value : '').toLowerCase();
-  let filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(f => f.category === currentCategory);
+  var topicEl = document.getElementById('topic-search');
+  var searchTerm = topicEl ? topicEl.value.toLowerCase() : '';
+  var filtered = currentCategory === 'all' ? FEED_DIRECTORY : FEED_DIRECTORY.filter(function(f) { return f.category === currentCategory; });
   if (searchTerm) {
-    filtered = filtered.filter(f =>
-      f.name.toLowerCase().includes(searchTerm) ||
-      f.desc.toLowerCase().includes(searchTerm) ||
-      f.category.toLowerCase().includes(searchTerm)
-    );
+    filtered = filtered.filter(function(f) {
+      return f.name.toLowerCase().includes(searchTerm) || f.desc.toLowerCase().includes(searchTerm) || f.category.toLowerCase().includes(searchTerm);
+    });
   }
-  const feed = filtered[index];
-  const btn = document.getElementById('add-btn-' + index);
+  var feed = filtered[index];
+  var btn = document.getElementById('add-btn-' + index);
   btn.textContent = 'Adding…';
   btn.disabled = true;
 
-  const platforms = await fetch('/api/platforms').then(r => r.json());
-  const res = await fetch('/api/feeds', {
+  var platforms = await fetch('/api/platforms').then(function(r) { return r.json(); });
+  var res = await fetch('/api/feeds', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name: feed.name, url: feed.url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
   });
-  const data = await res.json();
+  var data = await res.json();
 
   if (!res.ok) {
     btn.textContent = data.error && data.error.includes('already') ? '✓ Already added' : 'Failed';
@@ -312,11 +320,11 @@ async function addDiscoverFeed(index) {
     return;
   }
 
-  for (const p of platforms) {
+  for (var i = 0; i < platforms.length; i++) {
     await fetch('/api/feeds/' + data.id + '/platforms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ platform_id: p.id }),
+      body: JSON.stringify({ platform_id: platforms[i].id }),
     });
   }
 
@@ -325,36 +333,34 @@ async function addDiscoverFeed(index) {
 }
 
 async function findFeedFromUrl() {
-  const url = document.getElementById('find-feed-url').value.trim();
+  var url = document.getElementById('find-feed-url').value.trim();
   if (!url) { alert('Enter a website URL or topic first.'); return; }
 
-  const btn = event.target;
+  var btn = event.target;
   btn.textContent = 'Searching…';
   btn.disabled = true;
 
-  const resultsEl = document.getElementById('find-feed-results');
+  var resultsEl = document.getElementById('find-feed-results');
   resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Searching…</div>';
 
   try {
-    const res = await fetch('/api/find-feed', {
+    var res = await fetch('/api/find-feed', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url: url }),
     });
-    const data = await res.json();
+    var data = await res.json();
 
     if (!data.feeds || data.feeds.length === 0) {
       resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">No RSS feeds found. Try a different topic or URL.</div>';
     } else {
-      resultsEl.innerHTML = data.feeds.map((feed, i) => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;">
-          <div>
-            <div style="font-size:13px;font-weight:500;color:var(--text);">${escHtml(feed.title)}</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${escHtml(feed.url)}</div>
-          </div>
-          <button class="btn btn-primary" id="url-add-btn-${i}" onclick="addFoundFeed(${i}, '${escHtml(feed.title)}', '${escHtml(feed.url)}')">+ Add</button>
-        </div>
-      `).join('');
+      resultsEl.innerHTML = data.feeds.map(function(feed, i) {
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;">' +
+          '<div><div style="font-size:13px;font-weight:500;color:var(--text);">' + escHtml(feed.title) + '</div>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + escHtml(feed.url) + '</div></div>' +
+          '<button class="btn btn-primary" id="url-add-btn-' + i + '" onclick="addFoundFeed(' + i + ', \'' + escHtml(feed.title) + '\', \'' + escHtml(feed.url) + '\')">+ Add</button>' +
+          '</div>';
+      }).join('');
     }
   } catch(e) {
     resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">Error. Try again.</div>';
@@ -365,17 +371,17 @@ async function findFeedFromUrl() {
 }
 
 async function addFoundFeed(index, title, url) {
-  const btn = document.getElementById('url-add-btn-' + index);
+  var btn = document.getElementById('url-add-btn-' + index);
   btn.textContent = 'Adding…';
   btn.disabled = true;
 
-  const platforms = await fetch('/api/platforms').then(r => r.json());
-  const res = await fetch('/api/feeds', {
+  var platforms = await fetch('/api/platforms').then(function(r) { return r.json(); });
+  var res = await fetch('/api/feeds', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: title, url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
+    body: JSON.stringify({ name: title, url: url, check_interval: 30, max_items: 3, post_immediately: 1, active: 1 }),
   });
-  const data = await res.json();
+  var data = await res.json();
 
   if (!res.ok) {
     btn.textContent = data.error && data.error.includes('already') ? '✓ Already added' : 'Failed';
@@ -383,11 +389,11 @@ async function addFoundFeed(index, title, url) {
     return;
   }
 
-  for (const p of platforms) {
+  for (var i = 0; i < platforms.length; i++) {
     await fetch('/api/feeds/' + data.id + '/platforms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ platform_id: p.id }),
+      body: JSON.stringify({ platform_id: platforms[i].id }),
     });
   }
 
@@ -398,26 +404,26 @@ async function addFoundFeed(index, title, url) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 async function loadDashboard() {
   try {
-    const stats = await fetch('/api/stats').then(r => r.json());
-    document.getElementById('stats-row').innerHTML = `
-      <div class="stat-card"><div class="stat-value">${stats.activeFeeds}</div><div class="stat-label">Active Feeds</div></div>
-      <div class="stat-card"><div class="stat-value">${stats.platforms}</div><div class="stat-label">Platforms</div></div>
-      <div class="stat-card"><div class="stat-value">${stats.todayPosts}</div><div class="stat-label">Posted Today</div></div>
-      <div class="stat-card"><div class="stat-value">${stats.totalPosts}</div><div class="stat-label">Total Posts</div></div>
-    `;
-    const history = await fetch('/api/history').then(r => r.json());
-    const el = document.getElementById('dashboard-history');
+    var stats = await fetch('/api/stats').then(function(r) { return r.json(); });
+    document.getElementById('stats-row').innerHTML =
+      '<div class="stat-card"><div class="stat-value">' + stats.activeFeeds + '</div><div class="stat-label">Active Feeds</div></div>' +
+      '<div class="stat-card"><div class="stat-value">' + stats.platforms + '</div><div class="stat-label">Platforms</div></div>' +
+      '<div class="stat-card"><div class="stat-value">' + stats.todayPosts + '</div><div class="stat-label">Posted Today</div></div>' +
+      '<div class="stat-card"><div class="stat-value">' + stats.totalPosts + '</div><div class="stat-label">Total Posts</div></div>';
+
+    var history = await fetch('/api/history').then(function(r) { return r.json(); });
+    var el = document.getElementById('dashboard-history');
     if (history.length === 0) {
       el.innerHTML = '<div class="empty-state">No posts yet.</div>';
     } else {
-      el.innerHTML = history.slice(0, 10).map(item => `
-        <div class="history-item">
-          <span>${PLATFORM_ICONS[item.platform] || '🌐'}</span>
-          <span class="history-title">${escHtml(item.item_title || 'Untitled')}</span>
-          <span class="history-meta">${item.platform} · ${timeAgo(item.posted_at)}</span>
-          <span class="${item.status === 'posted' ? 'badge-posted' : 'badge-failed'}">${item.status}</span>
-        </div>
-      `).join('');
+      el.innerHTML = history.slice(0, 10).map(function(item) {
+        return '<div class="history-item">' +
+          platformLogo(item.platform, 18) +
+          '<span class="history-title">' + escHtml(item.item_title || 'Untitled') + '</span>' +
+          '<span class="history-meta">' + (item.platform || '') + ' · ' + timeAgo(item.posted_at) + '</span>' +
+          '<span class="' + (item.status === 'posted' ? 'badge-posted' : 'badge-failed') + '">' + item.status + '</span>' +
+          '</div>';
+      }).join('');
     }
   } catch(e) { console.error(e); }
 }
@@ -425,28 +431,27 @@ async function loadDashboard() {
 // ── Feeds ─────────────────────────────────────────────────────────────────────
 async function loadFeeds() {
   try {
-    const feeds = await fetch('/api/feeds').then(r => r.json());
-    const el = document.getElementById('feeds-list');
+    var feeds = await fetch('/api/feeds').then(function(r) { return r.json(); });
+    var el = document.getElementById('feeds-list');
     if (feeds.length === 0) {
       el.innerHTML = '<div class="empty-state">No feeds yet.<br>Click "Discover Feeds" to get started!</div>';
       return;
     }
-    el.innerHTML = feeds.map(f => `
-      <div class="feed-item">
-        <span class="feed-icon">🟠</span>
-        <div class="feed-info">
-          <div class="feed-name">${escHtml(f.name)}</div>
-          <div class="feed-url">${escHtml(f.url)}</div>
-        </div>
-        <span class="feed-badge ${f.active ? 'badge-active' : 'badge-inactive'}">${f.active ? 'active' : 'paused'}</span>
-        <div class="feed-actions">
-          <button class="btn btn-ghost" onclick="checkFeedNow(${f.id}, event)">↻</button>
-          <button class="btn btn-ghost" onclick="toggleFeedActive(${f.id}, ${f.active ? 0 : 1})">${f.active ? '⏸' : '▶'}</button>
-          <button class="btn btn-ghost" onclick="openEditFeed(${f.id})">✎</button>
-          <button class="btn btn-danger" onclick="deleteFeed(${f.id})">✕</button>
-        </div>
-      </div>
-    `).join('');
+    el.innerHTML = feeds.map(function(f) {
+      return '<div class="feed-item">' +
+        '<span class="feed-icon">🟠</span>' +
+        '<div class="feed-info">' +
+        '<div class="feed-name">' + escHtml(f.name) + '</div>' +
+        '<div class="feed-url">' + escHtml(f.url) + '</div>' +
+        '</div>' +
+        '<span class="feed-badge ' + (f.active ? 'badge-active' : 'badge-inactive') + '">' + (f.active ? 'active' : 'paused') + '</span>' +
+        '<div class="feed-actions">' +
+        '<button class="btn btn-ghost" onclick="checkFeedNow(' + f.id + ', event)">↻</button>' +
+        '<button class="btn btn-ghost" onclick="toggleFeedActive(' + f.id + ', ' + (f.active ? 0 : 1) + ')">' + (f.active ? '⏸' : '▶') + '</button>' +
+        '<button class="btn btn-ghost" onclick="openEditFeed(' + f.id + ')">✎</button>' +
+        '<button class="btn btn-danger" onclick="deleteFeed(' + f.id + ')">✕</button>' +
+        '</div></div>';
+    }).join('');
   } catch(e) { console.error(e); }
 }
 
@@ -464,10 +469,10 @@ async function openAddFeed() {
 }
 
 async function openEditFeed(id) {
-  const feeds = await fetch('/api/feeds').then(r => r.json());
-  const feed = feeds.find(f => f.id === id);
+  var feeds = await fetch('/api/feeds').then(function(r) { return r.json(); });
+  var feed = feeds.find(function(f) { return f.id === id; });
   if (!feed) return;
-  const connected = await fetch('/api/feeds/' + id + '/platforms').then(r => r.json());
+  var connected = await fetch('/api/feeds/' + id + '/platforms').then(function(r) { return r.json(); });
   document.getElementById('modal-feed-title').textContent = 'Edit Feed';
   document.getElementById('feed-id').value = id;
   document.getElementById('feed-name').value = feed.name;
@@ -476,28 +481,28 @@ async function openEditFeed(id) {
   document.getElementById('feed-max').value = feed.max_items;
   document.getElementById('feed-prefix').value = feed.prefix || '';
   document.getElementById('feed-suffix').value = feed.suffix || '';
-  await loadPlatformCheckboxes(connected.map(p => p.id));
+  await loadPlatformCheckboxes(connected.map(function(p) { return p.id; }));
   document.getElementById('modal-feed').classList.add('open');
 }
 
 async function loadPlatformCheckboxes(selectedIds) {
-  const platforms = await fetch('/api/platforms').then(r => r.json());
-  const el = document.getElementById('platform-checkboxes');
+  var platforms = await fetch('/api/platforms').then(function(r) { return r.json(); });
+  var el = document.getElementById('platform-checkboxes');
   if (platforms.length === 0) {
     el.innerHTML = '<span style="font-size:12px;color:var(--muted)">No platforms added yet.</span>';
     return;
   }
-  el.innerHTML = platforms.map(p => `
-    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;">
-      <input type="checkbox" value="${p.id}" ${selectedIds.includes(p.id) ? 'checked' : ''} />
-      ${PLATFORM_ICONS[p.type] || '🌐'} ${escHtml(p.name)}
-    </label>
-  `).join('');
+  el.innerHTML = platforms.map(function(p) {
+    return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;">' +
+      '<input type="checkbox" value="' + p.id + '" ' + (selectedIds.includes(p.id) ? 'checked' : '') + ' />' +
+      platformLogo(p.type, 16) + ' ' + escHtml(p.name) +
+      '</label>';
+  }).join('');
 }
 
 async function saveFeed() {
-  const id = document.getElementById('feed-id').value;
-  const body = {
+  var id = document.getElementById('feed-id').value;
+  var body = {
     name: document.getElementById('feed-name').value.trim(),
     url: document.getElementById('feed-url').value.trim(),
     check_interval: parseInt(document.getElementById('feed-interval').value) || 30,
@@ -507,18 +512,18 @@ async function saveFeed() {
     post_immediately: 1, active: 1,
   };
   if (!body.name || !body.url) { alert('Name and URL are required.'); return; }
-  const selectedPids = Array.from(document.querySelectorAll('#platform-checkboxes input:checked')).map(i => parseInt(i.value));
+  var selectedPids = Array.from(document.querySelectorAll('#platform-checkboxes input:checked')).map(function(i) { return parseInt(i.value); });
   if (id) {
     await fetch('/api/feeds/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    const current = await fetch('/api/feeds/' + id + '/platforms').then(r => r.json());
-    const currentIds = current.map(p => p.id);
-    for (const pid of selectedPids) if (!currentIds.includes(pid)) await fetch('/api/feeds/' + id + '/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform_id: pid }) });
-    for (const pid of currentIds) if (!selectedPids.includes(pid)) await fetch('/api/feeds/' + id + '/platforms/' + pid, { method: 'DELETE' });
+    var current = await fetch('/api/feeds/' + id + '/platforms').then(function(r) { return r.json(); });
+    var currentIds = current.map(function(p) { return p.id; });
+    for (var i = 0; i < selectedPids.length; i++) if (!currentIds.includes(selectedPids[i])) await fetch('/api/feeds/' + id + '/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform_id: selectedPids[i] }) });
+    for (var j = 0; j < currentIds.length; j++) if (!selectedPids.includes(currentIds[j])) await fetch('/api/feeds/' + id + '/platforms/' + currentIds[j], { method: 'DELETE' });
   } else {
-    const res = await fetch('/api/feeds', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    const data = await res.json();
+    var res = await fetch('/api/feeds', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    var data = await res.json();
     if (!res.ok) { alert(data.error || 'Failed'); return; }
-    for (const pid of selectedPids) await fetch('/api/feeds/' + data.id + '/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform_id: pid }) });
+    for (var k = 0; k < selectedPids.length; k++) await fetch('/api/feeds/' + data.id + '/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform_id: selectedPids[k] }) });
   }
   closeModal('modal-feed');
   loadFeeds();
@@ -531,15 +536,15 @@ async function deleteFeed(id) {
 }
 
 async function toggleFeedActive(id, active) {
-  const feeds = await fetch('/api/feeds').then(r => r.json());
-  const feed = feeds.find(f => f.id === id);
+  var feeds = await fetch('/api/feeds').then(function(r) { return r.json(); });
+  var feed = feeds.find(function(f) { return f.id === id; });
   if (!feed) return;
-  await fetch('/api/feeds/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({}, feed, { active })) });
+  await fetch('/api/feeds/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({}, feed, { active: active })) });
   loadFeeds();
 }
 
 async function checkFeedNow(id, e) {
-  const btn = e.target;
+  var btn = e.target;
   btn.textContent = '…';
   btn.disabled = true;
   await fetch('/api/feeds/' + id + '/check', { method: 'POST' });
@@ -550,19 +555,21 @@ async function checkFeedNow(id, e) {
 // ── Platforms ─────────────────────────────────────────────────────────────────
 async function loadPlatforms() {
   try {
-    const platforms = await fetch('/api/platforms').then(r => r.json());
-    const el = document.getElementById('platforms-grid');
+    var platforms = await fetch('/api/platforms').then(function(r) { return r.json(); });
+    var el = document.getElementById('platforms-grid');
     if (platforms.length === 0) {
       el.innerHTML = '<div class="empty-state" style="grid-column:1/-1">No platforms yet.</div>';
       return;
     }
-    el.innerHTML = platforms.map(p => `
-      <div class="platform-card">
-       <img src="https://cdn.simpleicons.org/${p.type === 'twitter' ? 'x' : p.type}" width="32" height="32" style="border-radius:6px;" onerror="this.style.display='none'" />
-        <div><div class="platform-name">${escHtml(p.name)}</div><div class="platform-type">${p.type}</div></div>
-        <button class="btn btn-danger" onclick="deletePlatform(${p.id})">✕</button>
-      </div>
-    `).join('');
+    el.innerHTML = platforms.map(function(p) {
+      return '<div class="platform-card">' +
+        '<div style="width:40px;height:40px;border-radius:8px;background:white;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">' +
+        platformLogo(p.type, 28) +
+        '</div>' +
+        '<div><div class="platform-name">' + escHtml(p.name) + '</div><div class="platform-type">' + p.type + '</div></div>' +
+        '<button class="btn btn-danger" onclick="deletePlatform(' + p.id + ')">✕</button>' +
+        '</div>';
+    }).join('');
   } catch(e) { console.error(e); }
 }
 
@@ -575,9 +582,9 @@ function openAddPlatform() {
 }
 
 function updatePlatformFields() {
-  const type = document.getElementById('platform-type').value;
-  const extra = document.getElementById('platform-extra-fields');
-  const saveBtn = document.getElementById('save-platform-btn');
+  var type = document.getElementById('platform-type').value;
+  var extra = document.getElementById('platform-extra-fields');
+  var saveBtn = document.getElementById('save-platform-btn');
   saveBtn.disabled = false;
   extra.innerHTML = '';
   if (type === 'discord') {
@@ -590,22 +597,22 @@ function updatePlatformFields() {
 }
 
 async function savePlatform() {
-  const type = document.getElementById('platform-type').value;
-  const name = document.getElementById('platform-name').value.trim();
+  var type = document.getElementById('platform-type').value;
+  var name = document.getElementById('platform-name').value.trim();
   if (!type) { alert('Select a platform type.'); return; }
   if (!name) { alert('Enter a display name.'); return; }
   var config = {};
   if (type === 'discord') {
-    const webhook = document.getElementById('discord-webhook') ? document.getElementById('discord-webhook').value.trim() : '';
+    var webhook = document.getElementById('discord-webhook') ? document.getElementById('discord-webhook').value.trim() : '';
     if (!webhook) { alert('Enter the Discord webhook URL.'); return; }
     config = { webhookUrl: webhook };
   } else if (type === 'bluesky') {
-    const handle = document.getElementById('bsky-handle') ? document.getElementById('bsky-handle').value.trim() : '';
-    const password = document.getElementById('bsky-password') ? document.getElementById('bsky-password').value.trim() : '';
+    var handle = document.getElementById('bsky-handle') ? document.getElementById('bsky-handle').value.trim() : '';
+    var password = document.getElementById('bsky-password') ? document.getElementById('bsky-password').value.trim() : '';
     if (!handle || !password) { alert('Enter your Bluesky handle and app password.'); return; }
-    config = { handle, password };
+    config = { handle: handle, password: password };
   }
-  await fetch('/api/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, type, config }) });
+  await fetch('/api/platforms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, type: type, config: config }) });
   closeModal('modal-platform');
   loadPlatforms();
 }
@@ -619,20 +626,20 @@ async function deletePlatform(id) {
 // ── History ───────────────────────────────────────────────────────────────────
 async function loadHistory() {
   try {
-    const history = await fetch('/api/history').then(r => r.json());
-    const el = document.getElementById('history-list');
+    var history = await fetch('/api/history').then(function(r) { return r.json(); });
+    var el = document.getElementById('history-list');
     if (history.length === 0) {
       el.innerHTML = '<div class="empty-state">No posts yet.</div>';
       return;
     }
-    el.innerHTML = history.map(item => `
-      <div class="history-item">
-        <span>${PLATFORM_ICONS[item.platform] || '🌐'}</span>
-        <span class="history-title">${escHtml(item.item_title || 'Untitled')}</span>
-        <span class="history-meta">${escHtml(item.feed_name || '')} · ${item.platform} · ${timeAgo(item.posted_at)}</span>
-        <span class="${item.status === 'posted' ? 'badge-posted' : 'badge-failed'}">${item.status}</span>
-      </div>
-    `).join('');
+    el.innerHTML = history.map(function(item) {
+      return '<div class="history-item">' +
+        platformLogo(item.platform, 18) +
+        '<span class="history-title">' + escHtml(item.item_title || 'Untitled') + '</span>' +
+        '<span class="history-meta">' + escHtml(item.feed_name || '') + ' · ' + (item.platform || '') + ' · ' + timeAgo(item.posted_at) + '</span>' +
+        '<span class="' + (item.status === 'posted' ? 'badge-posted' : 'badge-failed') + '">' + item.status + '</span>' +
+        '</div>';
+    }).join('');
   } catch(e) { console.error(e); }
 }
 
@@ -652,7 +659,7 @@ function escHtml(str) {
 
 function timeAgo(ts) {
   if (!ts) return '—';
-  const diff = Math.floor(Date.now()/1000 - ts);
+  var diff = Math.floor(Date.now()/1000 - ts);
   if (diff < 60) return 'just now';
   if (diff < 3600) return Math.floor(diff/60) + 'm ago';
   if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
