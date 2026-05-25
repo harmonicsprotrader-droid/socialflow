@@ -49,6 +49,7 @@ function showPage(page) {
   document.querySelectorAll('.sidebar-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.page === page);
   });
+  if (page === 'compose')   loadCompose();
   if (page === 'dashboard') loadDashboard();
   if (page === 'feeds')     loadFeeds();
   if (page === 'platforms') loadPlatforms();
