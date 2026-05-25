@@ -295,7 +295,81 @@ async function generateAIPost() {
   btn.textContent = '✨ Generate';
   btn.disabled = false;
 }
+// ── Image Functions ───────────────────────────────────────────────────────────
+let selectedImage = null;
 
+function toggleImageMenu() {
+  const menu = document.getElementById('image-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function triggerImageUpload() {
+  document.getElementById('image-menu').style.display = 'none';
+  document.getElementById('image-upload').click();
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    selectedImage = e.target.result;
+    document.getElementById('image-preview-img').src = selectedImage;
+    document.getElementById('image-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage() {
+  selectedImage = null;
+  document.getElementById('image-preview').style.display = 'none';
+  document.getElementById('image-preview-img').src = '';
+  document.getElementById('image-upload').value = '';
+}
+
+function openUnsplash() {
+  document.getElementById('image-menu').style.display = 'none';
+  const panel = document.getElementById('unsplash-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+async function searchUnsplash() {
+  const query = document.getElementById('unsplash-query').value.trim();
+  if (!query) return;
+  const resultsEl = document.getElementById('unsplash-results');
+  resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Searching…</div>';
+
+  try {
+    const res = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=YOUR_UNSPLASH_KEY`);
+    const data = await res.json();
+    if (!data.results?.length) {
+      resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No images found.</div>';
+      return;
+    }
+    resultsEl.innerHTML = data.results.map((img, i) => `
+      <img src="${img.urls.small}" onclick="selectUnsplashImage('${img.urls.regular}')"
+        style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;"
+        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'" />
+    `).join('');
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">Error searching Unsplash.</div>';
+  }
+}
+
+function selectUnsplashImage(url) {
+  selectedImage = url;
+  document.getElementById('image-preview-img').src = url;
+  document.getElementById('image-preview').style.display = 'block';
+  document.getElementById('unsplash-panel').style.display = 'none';
+}
+
+// Close image menu when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('#image-menu') && !e.target.closest('[onclick="toggleImageMenu()"]')) {
+    const menu = document.getElementById('image-menu');
+    if (menu) menu.style.display = 'none';
+  }
+});
 async function publishPost() {
   const content = document.getElementById('compose-text').value.trim();
   if (!content) { alert('Write something first.'); return; }
