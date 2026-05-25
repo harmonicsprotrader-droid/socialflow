@@ -76,7 +76,7 @@ async function loadCompose() {
     <div class="compose-account" id="compose-acct-${p.id}" onclick="toggleComposeAccount(${p.id})"
       style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:2px solid var(--accent);background:#e8f0fd;min-width:70px;">
       <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">
-        ${PLATFORM_ICONS[p.type] || '🌐'}
+        ${<img src="https://cdn.simpleicons.org/${p.type === 'twitter' ? 'x' : p.type}" width="24" height="24" onerror="this.style.display='none'" />'}
       </div>
       <div style="font-size:11px;font-weight:500;color:var(--text);text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(p.name)}</div>
     </div>
