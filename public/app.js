@@ -340,8 +340,7 @@ async function searchUnsplash() {
   resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Searching…</div>';
 
   try {
-    const res = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=YOUR_UNSPLASH_KEY`);
-    const data = await res.json();
+const res = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}`);    const data = await res.json();
     if (!data.results?.length) {
       resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No images found.</div>';
       return;
