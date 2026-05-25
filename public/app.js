@@ -216,7 +216,113 @@ async function addFoundFeed(index, title, url) {
   btn.textContent = '✓ Added!';
   btn.className = 'btn btn-success';
 }
+// ── Compose ───────────────────────────────────────────────────────────────────
+let selectedPlatformIds = new Set();
 
+async function loadCompose() {
+  const platforms = await fetch('/api/platforms').then(r => r.json());
+  const el = document.getElementById('compose-accounts');
+
+  if (platforms.length === 0) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;">No platforms connected. <a href="#" onclick="showPage(\'platforms\')" style="color:var(--accent);">Add platforms →</a></div>';
+    return;
+  }
+
+  selectedPlatformIds = new Set(platforms.map(p => p.id));
+
+  el.innerHTML = platforms.map(p => `
+    <div class="compose-account selected" id="compose-acct-${p.id}" onclick="toggleComposeAccount(${p.id})"
+      style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:8px;border:2px solid var(--accent);background:#e8f0fd;min-width:70px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">
+        ${PLATFORM_ICONS[p.type] || '🌐'}
+      </div>
+      <div style="font-size:11px;font-weight:500;color:var(--text);text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(p.name)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('compose-text').addEventListener('input', updateCharCount);
+}
+
+function toggleComposeAccount(id) {
+  const el = document.getElementById(`compose-acct-${id}`);
+  if (selectedPlatformIds.has(id)) {
+    selectedPlatformIds.delete(id);
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'var(--white)';
+  } else {
+    selectedPlatformIds.add(id);
+    el.style.borderColor = 'var(--accent)';
+    el.style.background = '#e8f0fd';
+  }
+}
+
+function updateCharCount() {
+  const text = document.getElementById('compose-text').value;
+  const el = document.getElementById('char-count');
+  el.textContent = `${text.length} / 280`;
+  el.style.color = text.length > 280 ? 'var(--red)' : 'var(--muted)';
+}
+
+async function generateAIPost() {
+  const topic = document.getElementById('ai-topic').value.trim();
+  const tone = document.getElementById('ai-tone').value;
+  const openaiKey = process.env?.OPENAI_API_KEY;
+
+  if (!topic) { alert('Enter a topic first.'); return; }
+
+  const btn = event.target;
+  btn.textContent = 'Generating…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/generate-post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, tone }),
+    });
+    const data = await res.json();
+    if (data.post) {
+      document.getElementById('compose-text').value = data.post;
+      updateCharCount();
+    } else {
+      alert('Failed to generate post. Check your OpenAI API key in Railway.');
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+
+  btn.textContent = '✨ Generate';
+  btn.disabled = false;
+}
+
+async function publishPost() {
+  const content = document.getElementById('compose-text').value.trim();
+  if (!content) { alert('Write something first.'); return; }
+  if (selectedPlatformIds.size === 0) { alert('Select at least one platform.'); return; }
+
+  const btn = event.target;
+  btn.textContent = '⏳ Posting…';
+  btn.disabled = true;
+
+  const res = await fetch('/api/publish', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content, platformIds: Array.from(selectedPlatformIds) }),
+  });
+  const data = await res.json();
+
+  const resultsEl = document.getElementById('publish-results');
+  resultsEl.innerHTML = data.results.map(r => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;">
+      <span>${PLATFORM_ICONS[r.platform] || '🌐'}</span>
+      <span>${r.platform}</span>
+      <span class="${r.status === 'posted' ? 'badge-posted' : 'badge-failed'}">${r.status}</span>
+    </div>
+  `).join('');
+
+  btn.textContent = '➤ Post Now';
+  btn.disabled = false;
+}
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 async function loadDashboard() {
   try {
