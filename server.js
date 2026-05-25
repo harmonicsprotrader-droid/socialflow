@@ -366,6 +366,38 @@ async function postToPlatform(type, config, text) {
       return res.ok;
     }
     if (type === 'twitter') return await postToTwitter(text);
+    if (type === 'instagram') {
+      const { accessToken, userId } = config;
+      // Create container
+      const container = await fetch(`https://graph.instagram.com/v21.0/${userId}/media`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption: text, media_type: 'TEXT', access_token: accessToken }),
+      }).then(r => r.json());
+      if (!container.id) return false;
+      // Publish
+      const publish = await fetch(`https://graph.instagram.com/v21.0/${userId}/media_publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creation_id: container.id, access_token: accessToken }),
+      }).then(r => r.json());
+      return !!publish.id;
+    }
+    if (type === 'threads') {
+      const { accessToken, userId } = config;
+      const container = await fetch(`https://graph.threads.net/v1.0/${userId}/threads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, media_type: 'TEXT', access_token: accessToken }),
+      }).then(r => r.json());
+      if (!container.id) return false;
+      const publish = await fetch(`https://graph.threads.net/v1.0/${userId}/threads_publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creation_id: container.id, access_token: accessToken }),
+      }).then(r => r.json());
+      return !!publish.id;
+    }
     if (type === 'bluesky') {
       const s = await fetch('https://bsky.social/xrpc/com.atproto.server.createSession', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier: config.handle, password: config.password }) }).then(r => r.json());
       if (!s.accessJwt) return false;
