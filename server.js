@@ -55,8 +55,7 @@ app.get('/auth/instagram', (req, res) => {
   const appId = process.env.META_APP_ID;
   const redirectUri = encodeURIComponent('https://socialflow-production.up.railway.app/auth/instagram/callback');
   const scope = 'instagram_business_basic,instagram_content_publish';
-  res.redirect(`https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${appId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`);
-});
+res.redirect(`https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`);});
 
 app.get('/auth/instagram/callback', async (req, res) => {
   const { code } = req.query;
