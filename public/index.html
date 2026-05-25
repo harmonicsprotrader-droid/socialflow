@@ -138,25 +138,22 @@
 
 <nav class="sidebar">
   <div class="logo"><div class="logo-dot"></div>SocialFlow</div>
+  <div class="nav-label">Automate</div>
   <button class="sidebar-btn" data-page="compose" onclick="showPage('compose')">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
     Compose
   </button>
-  <button class="sidebar-btn" data-page="feeds" onclick="showPage('feeds')">
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-  Automate
-</button>
   <button class="sidebar-btn active" data-page="dashboard" onclick="showPage('dashboard')">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     Dashboard
   </button>
+  <button class="sidebar-btn" data-page="feeds" onclick="showPage('feeds')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+    Automate
+  </button>
   <button class="sidebar-btn" data-page="discover" onclick="showPage('discover')">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     Discover Feeds
-  </button>
-  <button class="sidebar-btn" data-page="feeds" onclick="showPage('feeds')">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-    My Feeds
   </button>
   <div class="nav-label" style="margin-top:16px;">Outputs</div>
   <button class="sidebar-btn" data-page="platforms" onclick="showPage('platforms')">
@@ -173,7 +170,8 @@
 </nav>
 
 <main class="main">
-<!-- Compose -->
+
+  <!-- Compose -->
   <div class="page" id="page-compose">
     <div class="topbar">
       <div class="page-header" style="margin-bottom:0">
@@ -181,14 +179,10 @@
         <div class="page-subtitle">Write and publish to your social accounts</div>
       </div>
     </div>
-
-    <!-- Platform Selector -->
     <div class="card">
       <div class="card-title">Select Accounts</div>
       <div id="compose-accounts" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
     </div>
-
-    <!-- AI Helper -->
     <div class="card">
       <div class="card-title">✨ AI Helper</div>
       <div style="display:flex;gap:10px;margin-bottom:10px;">
@@ -203,13 +197,11 @@
         <button class="btn btn-primary" onclick="generateAIPost()">✨ Generate</button>
       </div>
     </div>
-
-    <!-- Compose Area -->
     <div class="card">
       <div class="card-title">Your Post</div>
       <textarea id="compose-text" placeholder="What would you like to share?"
         style="width:100%;min-height:140px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;resize:vertical;line-height:1.6;"></textarea>
-     <!-- Image Preview -->
+
       <div id="image-preview" style="display:none;margin-top:10px;">
         <img id="image-preview-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);" />
         <button onclick="removeImage()" style="display:block;margin-top:6px;font-size:12px;color:var(--red);background:none;border:none;cursor:pointer;">✕ Remove image</button>
@@ -232,14 +224,17 @@
 
       <div id="unsplash-panel" style="display:none;margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
         <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <input type="text" id="unsplash-query" placeholder="Search free images..." style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
+          <input type="text" id="unsplash-query" placeholder="Search free images..."
+            style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
           <button class="btn btn-primary" onclick="searchUnsplash()">Search</button>
         </div>
         <div id="unsplash-results" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
       </div>
+
       <div id="publish-results" style="margin-top:12px;"></div>
     </div>
   </div>
+
   <!-- Dashboard -->
   <div class="page active" id="page-dashboard">
     <div class="topbar">
@@ -261,6 +256,21 @@
     </div>
   </div>
 
+  <!-- My Feeds -->
+  <div class="page" id="page-feeds">
+    <div class="topbar">
+      <div class="page-header" style="margin-bottom:0">
+        <div class="page-title">Automate</div>
+        <div class="page-subtitle">Manage your RSS feed automations</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="showPage('discover')">🔍 Discover</button>
+        <button class="btn btn-primary" onclick="openAddFeed()">+ Add Feed</button>
+      </div>
+    </div>
+    <div id="feeds-list"><div class="empty-state">No feeds yet.<br>Click "Discover Feeds" to get started!</div></div>
+  </div>
+
   <!-- Discover -->
   <div class="page" id="page-discover">
     <div class="page-header">
@@ -268,9 +278,9 @@
       <div class="page-subtitle">Find and add RSS feeds from any website</div>
     </div>
     <div class="card">
-      <div class="card-title">🔍 Find Feed from any Website</div>
+      <div class="card-title">🔍 Find Feed from any Website or Topic</div>
       <div style="display:flex;gap:10px;">
-        <input type="text"" id="find-feed-url" Enter a URL or topic e.g. https://cointelegraph.com or 'bitcoin news'="Paste any website URL e.g. https://cointelegraph.com"
+        <input type="text" id="find-feed-url" placeholder="Enter a URL or topic e.g. https://cointelegraph.com or 'bitcoin news'"
           style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
         <button class="btn btn-primary" onclick="findFeedFromUrl()">Find RSS</button>
       </div>
@@ -279,10 +289,10 @@
     <div class="card">
       <div class="card-title">Browse by Category</div>
       <div style="display:flex;gap:10px;margin-bottom:16px;">
-  <input type="text" id="topic-search" placeholder="Search by topic e.g. bitcoin, forex, AI..." 
-    oninput="renderDiscoverGrid()"
-    style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
-</div>
+        <input type="text" id="topic-search" placeholder="Search by topic e.g. bitcoin, forex, AI..."
+          oninput="renderDiscoverGrid()"
+          style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;" />
+      </div>
       <div class="category-tabs">
         <button class="category-tab active" onclick="filterCategory('all', this)">All</button>
         <button class="category-tab" onclick="filterCategory('crypto', this)">🪙 Crypto</button>
@@ -293,21 +303,6 @@
       </div>
       <div class="discover-grid" id="discover-grid"></div>
     </div>
-  </div>
-
-  <!-- My Feeds -->
-  <div class="page" id="page-feeds">
-    <div class="topbar">
-      <div class="page-header" style="margin-bottom:0">
-        <div class="page-title">My Feeds</div>
-        <div class="page-subtitle">Your active automations</div>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn btn-ghost" onclick="showPage('discover')">🔍 Discover</button>
-        <button class="btn btn-primary" onclick="openAddFeed()">+ Add Manual</button>
-      </div>
-    </div>
-    <div id="feeds-list"><div class="empty-state">No feeds yet.<br>Click "Discover Feeds" to get started!</div></div>
   </div>
 
   <!-- Platforms -->
@@ -346,7 +341,7 @@
     </div>
     <input type="hidden" id="feed-id" />
     <div class="field"><label>Feed Name</label><input type="text" id="feed-name" placeholder="e.g. CoinTelegraph" /></div>
-    <div class="field"><label>RSS URL</label><input type="text" id="feed-url" placeholder="https://example.com/feed.xml" /></div>
+    <div class="field"><label>RSS URL</label><input type="url" id="feed-url" placeholder="https://example.com/feed.xml" /></div>
     <div class="fields-row">
       <div class="field"><label>Check Every (minutes)</label><input type="number" id="feed-interval" value="30" min="5" /></div>
       <div class="field"><label>Max Items Per Check</label><input type="number" id="feed-max" value="3" min="1" max="20" /></div>
@@ -371,12 +366,18 @@
     <div class="field"><label>Platform Type</label>
       <select id="platform-type" onchange="updatePlatformFields()">
         <option value="">Select platform…</option>
+        <option value="twitter">🐦 Twitter / X</option>
         <option value="discord">💬 Discord</option>
         <option value="bluesky">🦋 Bluesky</option>
-        <option value="twitter">🐦 Twitter / X</option>
+        <option value="instagram">📸 Instagram</option>
+        <option value="threads">🧵 Threads</option>
+        <option value="facebook">📘 Facebook</option>
+        <option value="tiktok">🎵 TikTok</option>
+        <option value="youtube">▶️ YouTube</option>
+        <option value="tumblr">📝 Tumblr</option>
       </select>
     </div>
-    <div class="field"><label>Display Name</label><input type="text" id="platform-name" placeholder="e.g. My Discord Server" /></div>
+    <div class="field"><label>Display Name</label><input type="text" id="platform-name" placeholder="e.g. My Instagram" /></div>
     <div id="platform-extra-fields"></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-platform')">Cancel</button>
