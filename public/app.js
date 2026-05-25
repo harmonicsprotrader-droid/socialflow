@@ -267,7 +267,7 @@ function updateCharCount() {
 async function generateAIPost() {
   const topic = document.getElementById('ai-topic').value.trim();
   const tone = document.getElementById('ai-tone').value;
-  const openaiKey = process.env?.OPENAI_API_KEY;
+
 
   if (!topic) { alert('Enter a topic first.'); return; }
 
