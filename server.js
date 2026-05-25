@@ -136,6 +136,42 @@ app.get('/auth/threads/callback', async (req, res) => {
     res.send('Error: ' + e.message);
   }
 });
+// ── TikTok OAuth ──────────────────────────────────────────────────────────────
+app.get('/auth/tiktok', (req, res) => {
+  const clientKey = process.env.TIKTOK_CLIENT_KEY;
+  const redirectUri = encodeURIComponent('https://socialflow-production.up.railway.app/auth/tiktok/callback');
+  const scope = 'user.info.basic,video.upload';
+  const csrfState = Math.random().toString(36).substring(7);
+  res.redirect(`https://www.tiktok.com/v2/auth/authorize?client_key=${clientKey}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${csrfState}`);
+});
+
+app.get('/auth/tiktok/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.send('Error: no code received');
+  try {
+    const tokenRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_key: process.env.TIKTOK_CLIENT_KEY,
+        client_secret: process.env.TIKTOK_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: 'https://socialflow-production.up.railway.app/auth/tiktok/callback',
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) return res.send('Error: ' + JSON.stringify(tokenData));
+    await pool.query('INSERT INTO platforms (name, type, config) VALUES ($1, $2, $3)', [
+      'TikTok',
+      'tiktok',
+      JSON.stringify({ accessToken: tokenData.access_token, openId: tokenData.open_id }),
+    ]);
+    res.redirect('https://socialflow-production.up.railway.app/?connected=tiktok');
+  } catch(e) {
+    res.send('Error: ' + e.message);
+  }
+});
 // ── Unsplash Image Search ─────────────────────────────────────────────────────
 app.get('/api/unsplash', async (req, res) => {
   const { query } = req.query;
