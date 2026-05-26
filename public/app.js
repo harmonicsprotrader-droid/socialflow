@@ -600,11 +600,13 @@ function updatePlatformFields() {
     saveBtn.textContent = 'Connect with Facebook';
     saveBtn.onclick = function() { window.location.href = '/auth/facebook'; };
   } else if (type === 'tiktok') {
-    extra.innerHTML = '<div class="info-box" style="background:#fff0f0;border-color:#ffcccc;color:#cc0000;">TikTok integration coming soon!</div>';
-    saveBtn.disabled = true;
+    extra.innerHTML = '<div class="info-box">You will be redirected to TikTok to log in and grant access. RSS posts will be saved as drafts in your TikTok inbox — TikTok requires a video to fully publish.</div>';
+    saveBtn.textContent = 'Connect with TikTok';
+    saveBtn.onclick = function() { window.location.href = '/auth/tiktok'; };
   } else if (type === 'youtube') {
-    extra.innerHTML = '<div class="info-box" style="background:#fff0f0;border-color:#ffcccc;color:#cc0000;">YouTube integration coming soon!</div>';
-    saveBtn.disabled = true;
+    extra.innerHTML = '<div class="info-box">You will be redirected to Google to log in and grant access. RSS headlines will be posted to your YouTube Community tab.</div>';
+    saveBtn.textContent = 'Connect with YouTube';
+    saveBtn.onclick = function() { window.location.href = '/auth/youtube'; };
   } else if (type === 'tumblr') {
     extra.innerHTML = '<div class="info-box" style="background:#fff0f0;border-color:#ffcccc;color:#cc0000;">Tumblr integration coming soon!</div>';
     saveBtn.disabled = true;
