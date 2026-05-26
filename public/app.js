@@ -141,6 +141,38 @@ async function generateAIPost() {
   btn.disabled = false;
 }
 
+async function generateHashtags() {
+  var content = document.getElementById('compose-text').value.trim()
+              || document.getElementById('ai-topic').value.trim();
+  if (!content) { alert('Write a post or enter a topic first.'); return; }
+
+  var btn = event.target;
+  var originalText = btn.textContent;
+  btn.textContent = 'Thinking…';
+  btn.disabled = true;
+
+  try {
+    var res = await fetch('/api/generate-hashtags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: content }),
+    });
+    var data = await res.json();
+    if (data.hashtags) {
+      var box = document.getElementById('compose-text');
+      box.value = (box.value.trim() + '\n\n' + data.hashtags).trim();
+      updateCharCount();
+    } else {
+      alert(data.error || 'Failed to generate hashtags.');
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+}
+
 // ── Image Functions ───────────────────────────────────────────────────────────
 function toggleImageMenu() {
   var menu = document.getElementById('image-menu');
@@ -177,27 +209,42 @@ function openUnsplash() {
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
-async function searchUnsplash() {
-  var query = document.getElementById('unsplash-query').value.trim();
-  if (!query) return;
+var unsplashPage = 1;
+var unsplashQuery = '';
+
+async function searchUnsplash(append) {
+  if (!append) {
+    unsplashQuery = document.getElementById('unsplash-query').value.trim();
+    unsplashPage = 1;
+  } else {
+    unsplashPage++;
+  }
+  if (!unsplashQuery) return;
   var resultsEl = document.getElementById('unsplash-results');
-  resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">Searching…</div>';
+  var loadMoreEl = document.getElementById('unsplash-load-more');
+  if (!append) resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">Searching…</div>';
 
   try {
-    var res = await fetch('/api/unsplash?query=' + encodeURIComponent(query));
+    var res = await fetch('/api/unsplash?query=' + encodeURIComponent(unsplashQuery) + '&per_page=30&page=' + unsplashPage);
     var data = await res.json();
     if (!data.results || !data.results.length) {
-      resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;">No images found.</div>';
+      if (!append) resultsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1;">No images found.</div>';
+      if (loadMoreEl) loadMoreEl.style.display = 'none';
       return;
     }
-    resultsEl.innerHTML = data.results.map(function(img) {
+    var html = data.results.map(function(img) {
       return '<img src="' + img.urls.small + '" onclick="selectUnsplashImage(\'' + img.urls.regular + '\')" style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'transparent\'" />';
     }).join('');
+    if (append) resultsEl.insertAdjacentHTML('beforeend', html);
+    else resultsEl.innerHTML = html;
+    if (loadMoreEl) {
+      var hasMore = data.total_pages ? unsplashPage < data.total_pages : data.results.length >= 30;
+      loadMoreEl.style.display = hasMore ? 'block' : 'none';
+    }
   } catch(e) {
-    resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;">Error searching.</div>';
+    if (!append) resultsEl.innerHTML = '<div style="color:var(--red);font-size:12px;grid-column:1/-1;">Error searching.</div>';
   }
 }
-
 function selectUnsplashImage(url) {
   selectedImage = url;
   document.getElementById('image-preview-img').src = url;
