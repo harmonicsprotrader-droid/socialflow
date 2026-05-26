@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // TikTok URL Verification
 app.get('/tiktokCoomGPT6F4t3hoH6fbCOiI4I8GwSYRVU.txt', (req, res) => {
-    res.type('text/plain').send('tiktok-developers-site-verification=CoomGPT6F4t3hoH6fbCOiI4I8GwSYRVU');
+        res.type('text/plain').send('CoomGPT6F4t3hoH6fbCOiI4I8GwSYRVU');
 });
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
