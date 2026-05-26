@@ -1,7 +1,7 @@
 const express = require('express');
 const Parser = require('rss-parser');
 const fetch = require('node-fetch');
-const cron = require('node-cron');
+const cron = require('node-cron');h
 const path = require('path');
 const crypto = require('crypto');
 const { Pool } = require('pg');
@@ -10,7 +10,7 @@ const app = express();
 const parser = new Parser();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));// ── TikTok URL Verification ──────────────────────────────────────────────────app.get('/tiktokCoomGPT6F4t3hoH6fbCOiI4I8GwSYRVU.txt', (req, res) => {  res.type('text/plain').send('tiktok-developers-site-verification=CoomGPT6F4t3hoH6fbCOiI4I8GwSYRVU');// ── TikTok URL Verification 
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
