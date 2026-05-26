@@ -226,9 +226,27 @@ app.get('/auth/youtube/callback', async (req, res) => {
 
 // ── Unsplash Image Search ─────────────────────────────────────────────────────
 app.get('/api/unsplash', async (req, res) => {
-  const { query } = req.query;
+  const { query, page } = req.query;
+  let perPage = parseInt(req.query.per_page, 10);
+  if (!perPage || isNaN(perPage)) perPage = 30;
+  perPage = Math.min(Math.max(perPage, 1), 30);
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
   const key = process.env.UNSPLASH_ACCESS_KEY;
   if (!key) return res.status(400).json({ error: 'No Unsplash key' });
+  if (!query) return res.status(400).json({ error: 'Query required' });
+  try {
+    const url = 'https://api.unsplash.com/search/photos'
+      + '?query=' + encodeURIComponent(query)
+      + '&per_page=' + perPage
+      + '&page=' + pageNum
+      + '&client_id=' + key;
+    const r = await fetch(url);
+    const data = await r.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
   try {
     const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=${key}`);
     const data = await r.json();
