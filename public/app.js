@@ -514,7 +514,7 @@ async function openEditFeed(id) {
   document.getElementById('feed-id').value = id;
   document.getElementById('feed-name').value = feed.name;
   document.getElementById('feed-url').value = feed.url;
-  document.getElementById('feed-interval').value = feed.check_interval;
+  document.getElementById('feed-interval').value = [30,60,120,180,240,1440].includes(feed.check_interval) ? feed.check_interval : 30;
   document.getElementById('feed-max').value = feed.max_items;
   document.getElementById('feed-prefix').value = feed.prefix || '';
   document.getElementById('feed-suffix').value = feed.suffix || '';
