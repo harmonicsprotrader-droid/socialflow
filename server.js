@@ -224,6 +224,111 @@ app.get('/auth/youtube/callback', async (req, res) => {
   }
 });
 
+// ── Tumblr OAuth (1.0a) ───────────────────────────────────────────────────────
+const tumblrRequestSecrets = new Map();
+
+function oauth1aSign(method, url, params, consumerSecret, tokenSecret) {
+          const sortedKeys = Object.keys(params).sort();
+          const paramString = sortedKeys.map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
+          const base = `${method.toUpperCase()}&${encodeURIComponent(url)}&${encodeURIComponent(paramString)}`;
+          const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(tokenSecret || '')}`;
+          return crypto.createHmac('sha1', signingKey).update(base).digest('base64');
+}
+
+function oauth1aHeader(method, url, extraParams, consumerKey, consumerSecret, token, tokenSecret) {
+          const oauthParams = {
+                      oauth_consumer_key: consumerKey,
+                      oauth_nonce: crypto.randomBytes(16).toString('hex'),
+                      oauth_signature_method: 'HMAC-SHA1',
+                      oauth_timestamp: Math.floor(Date.now()/1000).toString(),
+                      oauth_version: '1.0',
+          };
+          if (token) oauthParams.oauth_token = token;
+          const bodyParams = {};
+          for (const k of Object.keys(extraParams || {})) {
+                      if (k.startsWith('oauth_')) oauthParams[k] = extraParams[k];
+                      else bodyParams[k] = extraParams[k];
+          }
+          const allParams = { ...bodyParams, ...oauthParams };
+          oauthParams.oauth_signature = oauth1aSign(method, url, allParams, consumerSecret, tokenSecret);
+          return 'OAuth ' + Object.keys(oauthParams).sort().map(k => `${encodeURIComponent(k)}="${encodeURIComponent(oauthParams[k])}"`).join(', ');
+}
+
+app.get('/auth/tumblr', async (req, res) => {
+          const consumerKey = process.env.TUMBLR_CONSUMER_KEY;
+          const consumerSecret = process.env.TUMBLR_CONSUMER_SECRET;
+          if (!consumerKey || !consumerSecret) return res.send('Error: TUMBLR_CONSUMER_KEY/SECRET not set in Railway');
+          const callbackUrl = 'https://socialflow-production.up.railway.app/auth/tumblr/callback';
+          const url = 'https://www.tumblr.com/oauth/request_token';
+          try {
+                      const header = oauth1aHeader('POST', url, { oauth_callback: callbackUrl }, consumerKey, consumerSecret, null, null);
+                      const r = await fetch(url, { method: 'POST', headers: { 'Authorization': header } });
+                      const body = await r.text();
+                      const parsed = Object.fromEntries(new URLSearchParams(body));
+                      if (!parsed.oauth_token || !parsed.oauth_token_secret) return res.send('Tumblr request_token failed: ' + body);
+                      tumblrRequestSecrets.set(parsed.oauth_token, parsed.oauth_token_secret);
+                      res.redirect(`https://www.tumblr.com/oauth/authorize?oauth_token=${parsed.oauth_token}`);
+          } catch(e) {
+                      res.send('Error: ' + e.message);
+          }
+});
+
+app.get('/auth/tumblr/callback', async (req, res) => {
+          const { oauth_token, oauth_verifier } = req.query;
+          if (!oauth_token || !oauth_verifier) return res.send('Error: missing oauth_token or oauth_verifier');
+          const requestTokenSecret = tumblrRequestSecrets.get(oauth_token);
+          if (!requestTokenSecret) return res.send('Error: request token expired, please try again');
+          tumblrRequestSecrets.delete(oauth_token);
+          const consumerKey = process.env.TUMBLR_CONSUMER_KEY;
+          const consumerSecret = process.env.TUMBLR_CONSUMER_SECRET;
+          const accessUrl = 'https://www.tumblr.com/oauth/access_token';
+          try {
+                      const header = oauth1aHeader('POST', accessUrl, { oauth_verifier }, consumerKey, consumerSecret, oauth_token, requestTokenSecret);
+                      const r = await fetch(accessUrl, { method: 'POST', headers: { 'Authorization': header } });
+                      const body = await r.text();
+                      const tok = Object.fromEntries(new URLSearchParams(body));
+                      if (!tok.oauth_token || !tok.oauth_token_secret) return res.send('Tumblr access_token failed: ' + body);
+                      const userInfoUrl = 'https://api.tumblr.com/v2/user/info';
+                      const userHeader = oauth1aHeader('GET', userInfoUrl, {}, consumerKey, consumerSecret, tok.oauth_token, tok.oauth_token_secret);
+                      const userRes = await fetch(userInfoUrl, { headers: { 'Authorization': userHeader } });
+                      const userData = await userRes.json();
+                      const blogs = userData.response?.user?.blogs || [];
+                      const primaryBlog = blogs.find(b => b.primary) || blogs[0];
+                      const blogName = primaryBlog?.name || 'tumblr';
+                      await pool.query('INSERT INTO platforms (name, type, config) VALUES ($1, $2, $3)', [
+                                    userData.response?.user?.name || blogName,
+                                    'tumblr',
+                                    JSON.stringify({ accessToken: tok.oauth_token, accessTokenSecret: tok.oauth_token_secret, blogName }),
+                                  ]);
+                      res.redirect('https://socialflow-production.up.railway.app/?connected=tumblr');
+          } catch(e) {
+                      res.send('Error: ' + e.message);
+          }
+});
+
+async function postToTumblr(config, text) {
+          const consumerKey = process.env.TUMBLR_CONSUMER_KEY;
+          const consumerSecret = process.env.TUMBLR_CONSUMER_SECRET;
+          if (!consumerKey || !consumerSecret) { console.error('[Tumblr] consumer key/secret not set'); return false; }
+          const blogName = config.blogName;
+          if (!blogName) { console.error('[Tumblr] no blogName in config'); return false; }
+          const url = `https://api.tumblr.com/v2/blog/${blogName}/posts`;
+          try {
+                      const header = oauth1aHeader('POST', url, {}, consumerKey, consumerSecret, config.accessToken, config.accessTokenSecret);
+                      const res = await fetch(url, {
+                                    method: 'POST',
+                                    headers: { 'Authorization': header, 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ content: [{ type: 'text', text }] }),
+                      });
+                      if (!res.ok) {
+                                    const err = await res.text();
+                                    console.error('[Tumblr]', err);
+                                    return false;
+                      }
+                      return true;
+          } catch(e) { console.error('[Tumblr]', e.message); return false; }
+}
+
 // ── Unsplash Image Search ─────────────────────────────────────────────────────
 app.get('/api/unsplash', async (req, res) => {
   const { query, page } = req.query;
