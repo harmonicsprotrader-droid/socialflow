@@ -247,15 +247,7 @@ app.get('/api/unsplash', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
-  try {
-    const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=${key}`);
-    const data = await r.json();
-    res.json(data);
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
+  
 // ── Find RSS from URL or Topic ────────────────────────────────────────────────
 app.post('/api/find-feed', async (req, res) => {
   const { url } = req.body;
