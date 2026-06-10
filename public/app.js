@@ -465,7 +465,7 @@ async function loadDashboard() {
   } catch(e) { console.error(e); }
 }
 
-// ── Feeds ─────────────────────────────────────────────────────────────────────
+// ── Feeds (Automate) ──────────────────────────────────────────────────────────
 async function loadFeeds() {
   try {
     var feeds = await fetch('/api/feeds').then(function(r) { return r.json(); });
@@ -474,22 +474,94 @@ async function loadFeeds() {
       el.innerHTML = '<div class="empty-state">No feeds yet.<br>Click "Discover Feeds" to get started!</div>';
       return;
     }
-    el.innerHTML = feeds.map(function(f) {
-      return '<div class="feed-item">' +
-        '<span class="feed-icon">🟠</span>' +
+
+    // Summary / pause-all bar (dlvr-style overview)
+    var activeCount = feeds.filter(function(f) { return f.active; }).length;
+    var summary = '<div class="automate-summary">' +
+      '<span class="automate-summary-text">' + activeCount + ' active · ' + (feeds.length - activeCount) + ' paused · ' + feeds.length + ' total</span>' +
+      (activeCount > 0
+        ? '<button class="btn btn-ghost" onclick="pauseAllFeeds()">⏸ Pause all</button>'
+        : '<button class="btn btn-ghost" onclick="resumeAllFeeds()">▶ Resume all</button>') +
+      '</div>';
+
+    // Fetch each feed's connected platforms in parallel for inline icons
+    var platformsByFeed = await Promise.all(feeds.map(function(f) {
+      return fetch('/api/feeds/' + f.id + '/platforms').then(function(r) { return r.json(); }).catch(function() { return []; });
+    }));
+
+    el.innerHTML = summary + feeds.map(function(f, idx) {
+      var plats = platformsByFeed[idx] || [];
+      var icons = plats.length
+        ? plats.slice(0, 6).map(function(p) {
+            return '<span class="feed-dest" title="' + escHtml(p.name) + '">' + platformLogo(p.type, 18) + '</span>';
+          }).join('') + (plats.length > 6 ? '<span class="feed-dest-more">+' + (plats.length - 6) + '</span>' : '')
+        : '<span class="feed-dest-none">No platforms</span>';
+
+      return '<div class="feed-item ' + (f.active ? '' : 'feed-paused') + '">' +
+        '<span class="feed-icon">' + (f.active ? '🟢' : '⚪') + '</span>' +
         '<div class="feed-info">' +
-        '<div class="feed-name">' + escHtml(f.name) + '</div>' +
-        '<div class="feed-url">' + escHtml(f.url) + '</div>' +
+          '<div class="feed-name">' + escHtml(f.name) + '</div>' +
+          '<div class="feed-status">' + feedStatusLine(f) + '</div>' +
         '</div>' +
-        '<span class="feed-badge ' + (f.active ? 'badge-active' : 'badge-inactive') + '">' + (f.active ? 'active' : 'paused') + '</span>' +
+        '<div class="feed-dests">' + icons + '</div>' +
+        '<label class="toggle" title="' + (f.active ? 'Pause this automation' : 'Resume this automation') + '">' +
+          '<input type="checkbox" ' + (f.active ? 'checked' : '') + ' onchange="toggleFeedActive(' + f.id + ', this.checked ? 1 : 0)" />' +
+          '<span class="toggle-track"></span>' +
+        '</label>' +
         '<div class="feed-actions">' +
-        '<button class="btn btn-ghost" onclick="checkFeedNow(' + f.id + ', event)">↻</button>' +
-        '<button class="btn btn-ghost" onclick="toggleFeedActive(' + f.id + ', ' + (f.active ? 0 : 1) + ')">' + (f.active ? '⏸' : '▶') + '</button>' +
-        '<button class="btn btn-ghost" onclick="openEditFeed(' + f.id + ')">✎</button>' +
-        '<button class="btn btn-danger" onclick="deleteFeed(' + f.id + ')">✕</button>' +
+          '<button class="btn btn-ghost" title="Check now" onclick="checkFeedNow(' + f.id + ', event)">↻</button>' +
+          '<button class="btn btn-ghost" title="Edit" onclick="openEditFeed(' + f.id + ')">✎</button>' +
+          '<button class="btn btn-danger" title="Delete" onclick="deleteFeed(' + f.id + ')">✕</button>' +
         '</div></div>';
     }).join('');
   } catch(e) { console.error(e); }
+}
+
+function feedStatusLine(f) {
+  var interval = (f.check_interval || 30) * 60;
+  if (!f.last_checked) {
+    return f.active ? 'Waiting for first check · every ' + intervalLabel(f.check_interval) : 'Paused';
+  }
+  var checked = 'Checked ' + timeAgo(f.last_checked);
+  if (!f.active) return checked + ' · paused';
+  var now = Math.floor(Date.now() / 1000);
+  var nextIn = (f.last_checked + interval) - now;
+  var next = nextIn <= 0 ? 'next check due' : 'next in ' + relDuration(nextIn);
+  return checked + ' · ' + next;
+}
+
+function intervalLabel(mins) {
+  mins = mins || 30;
+  if (mins >= 1440) return 'day';
+  if (mins >= 60) return (mins / 60) + 'h';
+  return mins + 'm';
+}
+
+function relDuration(secs) {
+  if (secs < 60) return secs + 's';
+  if (secs < 3600) return Math.floor(secs / 60) + 'm';
+  return Math.floor(secs / 3600) + 'h ' + (Math.floor((secs % 3600) / 60)) + 'm';
+}
+
+async function pauseAllFeeds() {
+  if (!confirm('Pause ALL active automations? Nothing will post until you resume them.')) return;
+  var feeds = await fetch('/api/feeds').then(function(r) { return r.json(); });
+  for (var i = 0; i < feeds.length; i++) {
+    if (feeds[i].active) {
+      await fetch('/api/feeds/' + feeds[i].id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({}, feeds[i], { active: 0 })) });
+    }
+  }
+  loadFeeds();
+}
+
+async function resumeAllFeeds() {
+  var feeds = await fetch('/api/feeds').then(function(r) { return r.json(); });
+  for (var i = 0; i < feeds.length; i++) {
+    if (!feeds[i].active) {
+      await fetch('/api/feeds/' + feeds[i].id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({}, feeds[i], { active: 1 })) });
+    }
+  }
+  loadFeeds();
 }
 
 async function openAddFeed() {
