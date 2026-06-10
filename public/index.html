@@ -71,6 +71,15 @@
   .badge-active { background: #d4edda; color: var(--green); }
   .badge-inactive { background: #f8f9fa; color: var(--muted); }
   .feed-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .feed-item.feed-paused { opacity: 0.7; background: #fbfbfc; }
+  .feed-status { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feed-dests { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-right: 4px; }
+  .feed-dest { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+  .feed-dest-more { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 2px; }
+  .feed-dest-none { font-size: 11px; color: var(--muted); font-style: italic; }
+  .automate-summary { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px 14px; margin-bottom: 4px; }
+  .automate-summary-text { font-size: 12px; color: var(--muted); font-weight: 500; }
+
 
   .platforms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .platform-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
