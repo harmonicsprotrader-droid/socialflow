@@ -477,6 +477,46 @@ app.get('/api/history', async (req, res) => {
   res.json(rows);
 });
 
+// ── Posting Times API ───────────────────────────────────
+app.get('/api/posting-times', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM posting_times ORDER BY day_of_week, hour, minute');
+  res.json(rows);
+});
+
+app.post('/api/posting-times', async (req, res) => {
+  const { day_of_week, hour, minute, active } = req.body;
+  const { rows } = await pool.query('INSERT INTO posting_times (day_of_week,hour,minute,active) VALUES ($1,$2,$3,$4) RETURNING id', [day_of_week, hour, minute, active?1:0]);
+  res.json({ id: rows[0].id });
+});
+
+app.put('/api/posting-times/:id', async (req, res) => {
+  const { day_of_week, hour, minute, active } = req.body;
+  await pool.query('UPDATE posting_times SET day_of_week=$1,hour=$2,minute=$3,active=$4 WHERE id=$5', [day_of_week, hour, minute, active?1:0, req.params.id]);
+  res.json({ ok: true });
+});
+
+app.delete('/api/posting-times/:id', async (req, res) => {
+  await pool.query('DELETE FROM posting_times WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ── Scheduled Posts (Queue) API ──────────────────────────────
+app.get('/api/scheduled-posts', async (req, res) => {
+  const { rows } = await pool.query("SELECT * FROM scheduled_posts WHERE status='queued' ORDER BY scheduled_for ASC");
+  res.json(rows);
+});
+
+app.put('/api/scheduled-posts/:id', async (req, res) => {
+  const { scheduled_for } = req.body;
+  await pool.query('UPDATE scheduled_posts SET scheduled_for=$1 WHERE id=$2', [scheduled_for, req.params.id]);
+  res.json({ ok: true });
+});
+
+app.delete('/api/scheduled-posts/:id', async (req, res) => {
+  await pool.query('DELETE FROM scheduled_posts WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
 app.get('/api/stats', async (req, res) => {
   const todayStart = Math.floor(new Date().setHours(0,0,0,0) / 1000);
   const [a, b, c, d] = await Promise.all([
