@@ -671,6 +671,28 @@ async function postToTikTok(config, text, platformId) {
   console.log('[TikTok] Draft created:', data.data?.publish_id || 'unknown');
   return true;
 }
+// ── Scheduling helper: next available posting slot ─────────────────
+async function getNextSlot() {
+	const { rows: slots } = await pool.query('SELECT * FROM posting_times WHERE active=1');
+	const nowMs = Date.now();
+	// Fallback: if no slots defined, schedule 1 hour out
+	if (!slots.length) return Math.floor(nowMs / 1000) + 3600;
+	// Find the latest already-queued time so we don't stack items on one slot
+	const { rows: last } = await pool.query("SELECT MAX(scheduled_for) AS m FROM scheduled_posts WHERE status='queued'");
+	const fromMs = Math.max(nowMs, (last[0].m ? last[0].m * 1000 : 0) + 1000);
+	// Search forward up to 14 days for the next slot strictly after fromMs
+	for (let d = 0; d < 14 * 24 * 60; d++) {
+		const cand = new Date(fromMs + d * 60000);
+		const dow = cand.getDay();
+		for (const s of slots) {
+			if (s.day_of_week === dow && cand.getHours() === s.hour && cand.getMinutes() === s.minute) {
+				return Math.floor(cand.getTime() / 1000);
+			}
+		}
+	}
+	return Math.floor(nowMs / 1000) + 3600;
+}
+
 
 // ── RSS Feed Checker ──────────────────────────────────────────────────────────
 async function checkFeed(feed) {
@@ -683,11 +705,17 @@ async function checkFeed(feed) {
       const seen = await pool.query('SELECT 1 FROM seen_items WHERE feed_id=$1 AND item_guid=$2', [feed.id, guid]);
       if (seen.rows.length) continue;
       await pool.query('INSERT INTO seen_items (feed_id,item_guid) VALUES ($1,$2) ON CONFLICT DO NOTHING', [feed.id, guid]);
-      if (!feed.post_immediately || !platforms.length) continue;
+      		if (!platforms.length) continue;
       const title = item.title || 'New post';
       const link = item.link || '';
       let text = [feed.prefix, title, link, feed.suffix].filter(Boolean).join('\n');
       if (text.length > 280) text = text.slice(0, 277) + '...';
+            if (!feed.post_immediately) {
+				const when = await getNextSlot();
+				await pool.query('INSERT INTO scheduled_posts (feed_id,feed_name,item_title,item_url,content,scheduled_for,status,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [feed.id, feed.name, title, link, text, when, 'queued', Math.floor(Date.now()/1000)]);
+				newItems++;
+				continue;
+			}
       for (const p of platforms) {
         const config = JSON.parse(p.config);
         const ok = await postToPlatform(p.type, config, text, p.id);
@@ -753,6 +781,17 @@ async function postToPlatform(type, config, text, platformId) {
 cron.schedule('* * * * *', async () => {
   const { rows } = await pool.query('SELECT * FROM feeds WHERE active=1');
   const now = Math.floor(Date.now()/1000);
+            // Release due scheduled posts
+  const due = await pool.query("SELECT * FROM scheduled_posts WHERE status='queued' AND scheduled_for<=$1", [now]);
+  for (const sp of due.rows) {
+    const { rows: platforms } = await pool.query('SELECT p.* FROM platforms p JOIN feed_platforms fp ON p.id=fp.platform_id WHERE fp.feed_id=$1', [sp.feed_id]);
+    for (const p of platforms) {
+      const config = JSON.parse(p.config);
+      const ok = await postToPlatform(p.type, config, sp.content, p.id);
+      await pool.query('INSERT INTO history (feed_id,feed_name,platform,item_title,item_url,status,posted_at) VALUES ($1,$2,$3,$4,$5,$6,$7)', [sp.feed_id, sp.feed_name, p.type, sp.item_title, sp.item_url, ok?'posted':'failed', Math.floor(Date.now()/1000)]);
+    }
+    await pool.query("UPDATE scheduled_posts SET status='posted' WHERE id=$1", [sp.id]);
+  }
   for (const feed of rows) {
     if (now - (feed.last_checked||0) >= (feed.check_interval||30)*60) await checkFeed(feed);
   }
