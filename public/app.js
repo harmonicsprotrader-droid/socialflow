@@ -62,6 +62,7 @@ function showPage(page) {
   if (page === 'platforms') loadPlatforms();
   if (page === 'history')   loadHistory();
   if (page === 'discover')  renderDiscoverGrid();
+  if (page === 'schedule') loadSchedule();
 }
 
 // ── Compose ───────────────────────────────────────────────────────────────────
@@ -778,6 +779,159 @@ async function loadHistory() {
     }).join('');
   } catch(e) { console.error(e); }
 }
+
+// ── Schedule ──────────────────────────────────────────────
+var DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+var calViewDate = new Date();
+
+function loadSchedule() {
+  scheduleTab('queue');
+}
+
+function scheduleTab(tab) {
+  document.querySelectorAll('.schedule-pane').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.schedule-tab').forEach(function(b) { b.classList.toggle('active', b.dataset.stab === tab); });
+  var pane = document.getElementById('stab-' + tab);
+  if (pane) pane.classList.add('active');
+  if (tab === 'queue') loadQueue();
+  if (tab === 'times') loadPostingTimes();
+  if (tab === 'calendar') renderCalendar();
+}
+
+function fmtSlotTime(h, m) {
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var hr = h % 12; if (hr === 0) hr = 12;
+  return hr + ':' + (m < 10 ? '0' + m : m) + ' ' + ampm;
+}
+
+async function loadQueue() {
+  var el = document.getElementById('queue-list');
+  try {
+    var items = await fetch('/api/scheduled-posts').then(function(r) { return r.json(); });
+    if (!items.length) {
+      el.innerHTML = '<div class="empty-state">Nothing queued.<br>Turn off "Post immediately" on a feed to start queueing items into your posting slots.</div>';
+      return;
+    }
+    el.innerHTML = items.map(function(it) {
+      var d = new Date(it.scheduled_for * 1000);
+      var when = d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      return '<div class="queue-item">' +
+        '<div class="queue-time">' + when + '</div>' +
+        '<div class="queue-body">' +
+        '<div class="queue-title">' + escHtml(it.item_title || 'Untitled') + '</div>' +
+        '<div class="queue-feed">' + escHtml(it.feed_name || '') + '</div>' +
+        '</div>' +
+        '<button class="btn btn-danger" title="Remove from queue" onclick="deleteScheduledPost(' + it.id + ')">✕</button>' +
+        '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<div class="empty-state">Could not load queue.</div>'; }
+}
+
+async function deleteScheduledPost(id) {
+  if (!confirm('Remove this item from the queue? It will not be posted.')) return;
+  await fetch('/api/scheduled-posts/' + id, { method: 'DELETE' });
+  loadQueue();
+}
+
+async function loadPostingTimes() {
+  var el = document.getElementById('times-list');
+  try {
+    var times = await fetch('/api/posting-times').then(function(r) { return r.json(); });
+    if (!times.length) {
+      el.innerHTML = '<div class="empty-state">No posting times yet.<br>Click "+ Add Time" to create a recurring slot (e.g. every weekday at 9:00 AM).</div>';
+      return;
+    }
+    el.innerHTML = times.map(function(t) {
+      return '<div class="time-slot ' + (t.active ? '' : 'feed-paused') + '">' +
+        '<div class="time-slot-time">' + fmtSlotTime(t.hour, t.minute) + '</div>' +
+        '<div class="time-slot-day">' + DOW_NAMES[t.day_of_week] + '</div>' +
+        '<label class="toggle" title="' + (t.active ? 'Disable' : 'Enable') + '" style="margin-left:auto;">' +
+        '<input type="checkbox" ' + (t.active ? 'checked' : '') + ' onchange="togglePostingTime(' + t.id + ', this.checked ? 1 : 0)" />' +
+        '<span class="toggle-track"></span></label>' +
+        '<div class="feed-actions"><button class="btn btn-danger" title="Delete" onclick="deletePostingTime(' + t.id + ')">✕</button></div>' +
+        '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<div class="empty-state">Could not load posting times.</div>'; }
+}
+
+async function openAddPostingTime() {
+  var timeStr = prompt('Time of day (24h format, e.g. 09:00 or 14:30):', '09:00');
+  if (!timeStr) return;
+  var parts = timeStr.split(':');
+  var hour = parseInt(parts[0], 10);
+  var minute = parseInt(parts[1] || '0', 10);
+  if (isNaN(hour) || isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) { alert('Invalid time.'); return; }
+  var daysStr = prompt('Which days? Enter numbers 0-6 (0=Sun ... 6=Sat), comma-separated. Leave blank for every day:', '1,2,3,4,5');
+  if (daysStr === null) return;
+  var days;
+  if (!daysStr.trim()) { days = [0,1,2,3,4,5,6]; }
+  else { days = daysStr.split(',').map(function(s) { return parseInt(s.trim(), 10); }).filter(function(n) { return n >= 0 && n <= 6; }); }
+  if (!days.length) { alert('No valid days.'); return; }
+  for (var i = 0; i < days.length; i++) {
+    await fetch('/api/posting-times', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ day_of_week: days[i], hour: hour, minute: minute, active: 1 }) });
+  }
+  loadPostingTimes();
+}
+
+async function togglePostingTime(id, active) {
+  var times = await fetch('/api/posting-times').then(function(r) { return r.json(); });
+  var t = times.find(function(x) { return x.id === id; });
+  if (!t) return;
+  await fetch('/api/posting-times/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({}, t, { active: active })) });
+  loadPostingTimes();
+}
+
+async function deletePostingTime(id) {
+  if (!confirm('Delete this posting time?')) return;
+  await fetch('/api/posting-times/' + id, { method: 'DELETE' });
+  loadPostingTimes();
+}
+
+function calMonth(delta) {
+  calViewDate.setMonth(calViewDate.getMonth() + delta);
+  renderCalendar();
+}
+
+async function renderCalendar() {
+  var grid = document.getElementById('cal-grid');
+  var titleEl = document.getElementById('cal-title');
+  var year = calViewDate.getFullYear();
+  var month = calViewDate.getMonth();
+  titleEl.textContent = calViewDate.toLocaleDateString([], { month: 'long', year: 'numeric' });
+
+  var items = [];
+  try { items = await fetch('/api/scheduled-posts').then(function(r) { return r.json(); }); } catch(e) {}
+  var byDay = {};
+  items.forEach(function(it) {
+    var d = new Date(it.scheduled_for * 1000);
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      var key = d.getDate();
+      if (!byDay[key]) byDay[key] = [];
+      byDay[key].push({ time: d, title: it.item_title });
+    }
+  });
+
+  var firstDow = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var today = new Date();
+  var isThisMonth = today.getFullYear() === year && today.getMonth() === month;
+
+  var html = DOW_NAMES.map(function(d) { return '<div class="cal-dow">' + d + '</div>'; }).join('');
+  for (var i = 0; i < firstDow; i++) html += '<div class="cal-cell cal-empty"></div>';
+  for (var day = 1; day <= daysInMonth; day++) {
+    var evts = byDay[day] || [];
+    evts.sort(function(a, b) { return a.time - b.time; });
+    var evtHtml = evts.slice(0, 3).map(function(e) {
+      var t = e.time.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      return '<div class="cal-event" title="' + escHtml(e.title || '') + '">' + t + ' ' + escHtml((e.title || '').slice(0, 18)) + '</div>';
+    }).join('');
+    if (evts.length > 3) evtHtml += '<div class="cal-event-more">+' + (evts.length - 3) + ' more</div>';
+    var todayCls = (isThisMonth && day === today.getDate()) ? ' cal-today' : '';
+    html += '<div class="cal-cell' + todayCls + '"><div class="cal-date">' + day + '</div>' + evtHtml + '</div>';
+  }
+  grid.innerHTML = html;
+}
+
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
 function closeModal(id) {
