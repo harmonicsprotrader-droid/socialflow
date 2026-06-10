@@ -26,6 +26,8 @@ async function initDB() {
     CREATE TABLE IF NOT EXISTS feed_platforms (feed_id INTEGER, platform_id INTEGER, PRIMARY KEY (feed_id, platform_id));
     CREATE TABLE IF NOT EXISTS history (id SERIAL PRIMARY KEY, feed_id INTEGER, feed_name TEXT, platform TEXT, item_title TEXT, item_url TEXT, status TEXT, posted_at INTEGER);
     CREATE TABLE IF NOT EXISTS seen_items (feed_id INTEGER, item_guid TEXT, PRIMARY KEY (feed_id, item_guid));
+    CREATE TABLE IF NOT EXISTS posting_times (id SERIAL PRIMARY KEY, day_of_week INTEGER, hour INTEGER, minute INTEGER, active INTEGER DEFAULT 1);
+    CREATE TABLE IF NOT EXISTS scheduled_posts (id SERIAL PRIMARY KEY, feed_id INTEGER, feed_name TEXT, item_title TEXT, item_url TEXT, content TEXT, scheduled_for INTEGER, status TEXT DEFAULT 'queued', created_at INTEGER);
   `);
   console.log('DB ready');
 }
