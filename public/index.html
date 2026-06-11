@@ -173,6 +173,18 @@
 .cal-event { font-size: 10px; padding: 2px 5px; border-radius: 4px; background: #e8f0fd; color: var(--accent); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cal-event-more { font-size: 10px; color: var(--muted); font-weight: 600; }
 
+    .pdrop { position: relative; }
+    .pdrop-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; background: var(--white); border: 1px solid #d8dce4; border-radius: 8px; font-size: 14px; color: #1a1a2e; cursor: pointer; font-family: inherit; }
+    .pdrop-trigger:hover { border-color: #b9c0cc; }
+    .pdrop-current { display: flex; align-items: center; gap: 9px; }
+    .pdrop-current svg { display: block; }
+    .pdrop-caret { color: #8a93a3; font-size: 12px; }
+    .pdrop-menu { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--white); border: 1px solid #d8dce4; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; max-height: 280px; overflow-y: auto; padding: 4px; }
+    .pdrop.open .pdrop-menu { display: block; }
+    .pdrop-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; font-size: 14px; color: #1a1a2e; cursor: pointer; }
+    .pdrop-item:hover { background: #f1f3f7; }
+    .pdrop-item svg { display: block; }
+    .pdrop-item.selected { background: #eef1ff; }
 </style>
 </head>
 <body>
@@ -446,18 +458,14 @@ Schedule
       <button class="modal-close" onclick="closeModal('modal-platform')">×</button>
     </div>
     <div class="field"><label>Platform Type</label>
-      <select id="platform-type" onchange="updatePlatformFields()">
-        <option value="">Select platform…</option>
-        <option value="twitter">🐦 Twitter / X</option>
-        <option value="discord">💬 Discord</option>
-        <option value="bluesky">🦋 Bluesky</option>
-        <option value="instagram">📸 Instagram</option>
-        <option value="threads">🧵 Threads</option>
-        <option value="facebook">📘 Facebook</option>
-        <option value="tiktok">🎵 TikTok</option>
-        <option value="youtube">▶️ YouTube</option>
-        <option value="tumblr">📝 Tumblr</option>
-      </select>
+        <input type="hidden" id="platform-type" onchange="updatePlatformFields()">
+        <div class="pdrop" id="platform-dropdown">
+          <button type="button" class="pdrop-trigger" id="platform-dropdown-trigger" onclick="togglePlatformDropdown(event)">
+            <span class="pdrop-current" id="platform-dropdown-current">Select platform…</span>
+            <span class="pdrop-caret">▾</span>
+          </button>
+          <div class="pdrop-menu" id="platform-dropdown-menu"></div>
+        </div>
     </div>
     <div class="field"><label>Display Name</label><input type="text" id="platform-name" placeholder="e.g. My Instagram" /></div>
     <div id="platform-extra-fields"></div>
