@@ -966,3 +966,80 @@ document.addEventListener('DOMContentLoaded', function() {
     showPage('platforms');
   }
 });
+
+
+// ── Custom platform dropdown (logos) ──────────────────────
+var PLATFORM_LIST = [
+  { type: 'twitter', label: 'Twitter / X' },
+  { type: 'discord', label: 'Discord' },
+  { type: 'bluesky', label: 'Bluesky' },
+  { type: 'instagram', label: 'Instagram' },
+  { type: 'threads', label: 'Threads' },
+  { type: 'facebook', label: 'Facebook' },
+  { type: 'tiktok', label: 'TikTok' },
+  { type: 'youtube', label: 'YouTube' },
+  { type: 'tumblr', label: 'Tumblr' }
+];
+
+function buildPlatformDropdown() {
+  var menu = document.getElementById('platform-dropdown-menu');
+  if (!menu || menu.dataset.built === '1') return;
+  menu.innerHTML = PLATFORM_LIST.map(function(p) {
+    return '<div class="pdrop-item" data-type="' + p.type + '" onclick="selectPlatform(\'' + p.type + '\')">' +
+      platformLogo(p.type, 18) + '<span>' + p.label + '</span></div>';
+  }).join('');
+  menu.dataset.built = '1';
+}
+
+function togglePlatformDropdown(e) {
+  if (e) e.stopPropagation();
+  buildPlatformDropdown();
+  var d = document.getElementById('platform-dropdown');
+  if (d) d.classList.toggle('open');
+}
+
+function selectPlatform(type) {
+  var input = document.getElementById('platform-type');
+  if (input) { input.value = type; input.dispatchEvent(new Event('change')); }
+  var entry = PLATFORM_LIST.filter(function(p){ return p.type === type; })[0];
+  var cur = document.getElementById('platform-dropdown-current');
+  if (cur && entry) cur.innerHTML = platformLogo(type, 18) + '<span>' + entry.label + '</span>';
+  var menu = document.getElementById('platform-dropdown-menu');
+  if (menu) {
+    var items = menu.querySelectorAll('.pdrop-item');
+    for (var i = 0; i < items.length; i++) {
+      items[i].classList.toggle('selected', items[i].dataset.type === type);
+    }
+  }
+  var d = document.getElementById('platform-dropdown');
+  if (d) d.classList.remove('open');
+}
+
+function resetPlatformDropdown() {
+  var cur = document.getElementById('platform-dropdown-current');
+  if (cur) cur.innerHTML = 'Select platform…';
+  var menu = document.getElementById('platform-dropdown-menu');
+  if (menu) {
+    var items = menu.querySelectorAll('.pdrop-item');
+    for (var i = 0; i < items.length; i++) items[i].classList.remove('selected');
+  }
+  var d = document.getElementById('platform-dropdown');
+  if (d) d.classList.remove('open');
+}
+
+// Wrap openAddPlatform to also reset the visual dropdown label
+if (typeof openAddPlatform === 'function') {
+  var _origOpenAddPlatform = openAddPlatform;
+  openAddPlatform = function() {
+    _origOpenAddPlatform.apply(this, arguments);
+    resetPlatformDropdown();
+  };
+}
+
+// Close the dropdown when clicking outside it
+document.addEventListener('click', function(e) {
+  var d = document.getElementById('platform-dropdown');
+  if (d && d.classList.contains('open') && !d.contains(e.target)) {
+    d.classList.remove('open');
+  }
+});
